@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumina AI - Enterprise Pricing</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* --- PALETA ORIGINAL CON AJUSTES DE OPACIDAD --- */
+            --bg-body: #FFFFFF;
+            --text-main: #050505;
+            --text-muted: #52525B;
+            --text-light: #A1A1AA;
+            
+            --border-subtle: rgba(0, 0, 0, 0.08);
+            --border-strong: rgba(0, 0, 0, 1);
+            
+            /* Fondos de Packs */
+            --pack-a-bg: #F8F8F9; /* Gris ultra suave */
+            --pack-b-bg: #E4E4E7; /* Gris técnico */
+            --pack-c-bg: #FFFFFF; /* Blanco puro */
+            --pack-d-bg: #09090B; /* Negro Profundo */
+
+            /* Métricas de Diseño */
+            --radius-sm: 12px;
+            --radius-md: 24px;
+            --radius-lg: 40px;
+            --container-width: 1320px;
+            
+            /* Animaciones */
+            --ease-premium: cubic-bezier(0.16, 1, 0.3, 1); /* Movimiento fluido tipo iOS */
+        }
+
+        /* RESET & BASE */
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; }
+        
+        html { scroll-behavior: smooth; font-size: 16px; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+            padding-bottom: 120px;
+        }
+
+        /* TEXTURA DE FONDO (Refinada) */
+        .noise-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: -1;
+            opacity: 0.035; /* Muy sutil */
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .container {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        /* --- TIPOGRAFÍA Y UTILIDADES --- */
+        h1, h2, h3, h4 { letter-spacing: -0.04em; line-height: 1.1; color: var(--text-main); }
+        p { letter-spacing: -0.01em; color: var(--text-muted); }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            height: 32px;
+            padding: 0 14px;
+            border-radius: 100px;
+            background: var(--text-main);
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 32px;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            padding: 120px 0 100px;
+            border-bottom: 1px solid var(--border-subtle);
+            margin-bottom: 100px;
+        }
+
+        .hero-headline {
+            font-size: clamp(3.5rem, 6vw, 5.5rem); /* Responsive fluido */
+            font-weight: 900;
+            max-width: 1100px;
+            margin-bottom: 32px;
+        }
+
+        .hero-sub {
+            font-size: 1.35rem;
+            max-width: 800px;
+            margin-bottom: 60px;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 48px;
+            padding-top: 48px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .feat-item h4 { font-size: 1.125rem; font-weight: 600; margin-bottom: 12px; }
+        .feat-item p { font-size: 0.95rem; line-height: 1.5; color: var(--text-muted); }
+
+        /* --- PRICING SECTION --- */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 60px;
+        }
+        
+        .section-title { font-size: 2.5rem; font-weight: 800; }
+
+        .pricing-wrapper {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            align-items: stretch;
+            margin-bottom: 140px;
+        }
+
+        .pack-card {
+            background: var(--pack-a-bg);
+            border-radius: var(--radius-lg);
+            padding: 40px 32px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: transform 0.4s var(--ease-premium), box-shadow 0.4s var(--ease-premium);
+            border: 1px solid transparent;
+            height: 100%;
+        }
+
+        .pack-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            box-shadow: 0 24px 48px rgba(0,0,0,0.06);
+            z-index: 2;
+        }
+
+        /* Estilos específicos de cada pack */
+        .pack-card.style-b { background: var(--pack-b-bg); }
+        
+        .pack-card.style-c { 
+            background: var(--pack-c-bg);
+            border: 1px solid var(--text-main); /* Borde negro fino */
+            box-shadow: 0 4px 24px rgba(0,0,0,0.04);
+        }
+        
+        .pack-card.style-d { 
+            background: var(--pack-d-bg); 
+            color: #FFFFFF;
+        }
+        
+        /* Contenido de la Tarjeta */
+        .pack-meta { margin-bottom: 32px; }
+        
+        .pack-name {
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 16px;
+            opacity: 0.7;
+        }
+
+        .pack-price {
+            font-size: 3rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+            display: flex;
+            align-items: baseline;
+            line-height: 1;
+        }
+
+        .pack-price span {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-left: 4px;
+            opacity: 0.6;
+        }
+
+        .features {
+            list-style: none;
+            margin-bottom: 40px;
+            flex-grow: 1;
+        }
+
+        .features li {
+            margin-bottom: 16px;
+            font-size: 0.935rem;
+            font-weight: 500;
+            position: relative;
+            padding-left: 20px;
+            line-height: 1.4;
+            color: var(--text-main);
+        }
+
+        .pack-card.style-d .features li,
+        .pack-card.style-d p { color: #D4D4D8; }
+        .pack-card.style-d .pack-price { color: #fff; }
+
+        /* Icono personalizado con CSS para la lista */
+        .features li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 6px;
+            height: 6px;
+            background: currentColor;
+            border-radius: 50%;
+            opacity: 0.4;
+        }
+
+        .ideal-badge {
+            margin-top: auto;
+            background: rgba(0,0,0,0.04);
+            padding: 20px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+
+        .pack-card.style-d .ideal-badge { background: rgba(255,255,255,0.1); }
+
+        .ideal-badge strong {
+            display: block;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+        }
+
+        /* --- ADD ONS (Estilo Grid Horizontal) --- */
+        .addons-title {
+            font-size: 2rem;
+            margin-bottom: 24px;
+            padding-top: 80px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .addons-scroll-container {
+            display: flex;
+            gap: 24px;
+            overflow-x: auto;
+            padding-bottom: 40px;
+            /* Ocultar scrollbar pero permitir scroll */
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        .addons-scroll-container::-webkit-scrollbar { display: none; }
+
+        .addon-item {
+            min-width: 340px;
+            background: #fff;
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 32px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .addon-item:hover {
+            border-color: var(--text-main);
+            transform: translateY(-4px);
+        }
+
+        .addon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .addon-name { font-weight: 700; font-size: 1.1rem; line-height: 1.2; max-width: 70%; }
+        
+        .addon-price-box {
+            text-align: right;
+        }
+        
+        .price-chip {
+            background: var(--text-main);
+            color: #fff;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .price-sub { font-size: 0.7rem; color: var(--text-muted); }
+
+        /* --- HUMAN PROFILE (Metal Card) --- */
+        .human-profile {
+            background: var(--pack-d-bg);
+            color: #fff;
+            border-radius: var(--radius-lg);
+            padding: 80px;
+            position: relative;
+            overflow: hidden;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        /* Efecto de luz ambiental sutil */
+        .human-profile::after {
+            content: '';
+            position: absolute;
+            top: -50%; right: -20%;
+            width: 80%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.07) 0%, rgba(0,0,0,0) 60%);
+            pointer-events: none;
+        }
+
+        .hp-left h2 {
+            font-size: 4rem;
+            color: #fff;
+            margin-bottom: 24px;
+            letter-spacing: -0.06em;
+        }
+
+        .hp-desc {
+            font-size: 1.2rem;
+            color: #A1A1AA;
+            margin-bottom: 48px;
+            border-left: 2px solid #fff;
+            padding-left: 24px;
+        }
+
+        .hp-specs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+        }
+
+        .hp-spec-item h5 {
+            color: #fff;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+        
+        .hp-spec-item p { color: #71717A; font-size: 0.9rem; }
+
+        .hp-card-display {
+            background: linear-gradient(145deg, #18181B, #000);
+            border: 1px solid #333;
+            border-radius: 32px;
+            padding: 48px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hp-price-big { font-size: 3.5rem; font-weight: 900; color: #fff; margin-bottom: 8px; line-height: 1; }
+        .hp-price-sub { color: #52525B; font-size: 0.9rem; margin-bottom: 32px; display: block; }
+        
+        .btn-cta {
+            background: #fff;
+            color: #000;
+            text-decoration: none;
+            padding: 18px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            display: inline-block;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        .btn-cta:hover {
+            background: #F4F4F5;
+            transform: scale(0.98);
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 1200px) {
+            .pricing-wrapper { grid-template-columns: repeat(2, 1fr); }
+            .human-profile { grid-template-columns: 1fr; padding: 60px; text-align: center; }
+            .hp-desc { border-left: none; padding-left: 0; }
+            .hp-specs { text-align: left; }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 0 24px; }
+            .hero-headline { font-size: 3rem; }
+            .features-grid { grid-template-columns: 1fr; gap: 32px; }
+            .pricing-wrapper { grid-template-columns: 1fr; }
+            .hp-specs { grid-template-columns: 1fr; }
+            .human-profile { padding: 40px 24px; }
+            .hp-left h2 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="noise-overlay"></div>
+
+    <div class="container">
+        
+        <header class="hero">
+            <div class="pill">Lumina AI — Pricing 2025</div>
+            <h1 class="hero-headline">Escala tu identidad<br>con estética humana.</h1>
+            <p class="hero-sub">
+                Producción de contenido AGC™ (AI Generated Content) premium. Sin actores, sin límites, con un control de marca absoluto.
+            </p>
+
+            <div class="features-grid">
+                <div class="feat-item">
+                    <h4>Identidad Continua</h4>
+                    <p>Rostros y voces consistentes que eliminan la dependencia de talento humano volátil.</p>
+                </div>
+                <div class="feat-item">
+                    <h4>Performance Ads</h4>
+                    <p>Creativos optimizados con frameworks AIDA/PAS listos para inyectar en Meta y TikTok.</p>
+                </div>
+                <div class="feat-item">
+                    <h4>Escalabilidad Enterprise</h4>
+                    <p>Genera cientos de variaciones visuales sin organizar una sola sesión de fotos física.</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="section-header">
+            <h2 class="section-title">Packs Mensuales</h2>
+        </div>
+
+        <div class="pricing-wrapper">
+            
+            <div class="pack-card">
+                <div class="pack-meta">
+                    <div class="pack-name">Pack A — Base</div>
+                    <div class="pack-price">2k €<span>/mes</span></div>
+                </div>
+                <ul class="features">
+                    <li>4 Vídeos AGC™ (Vertical)</li>
+                    <li>Guiones de venta optimizados</li>
+                    <li>Estética de marca coherente</li>
+                    <li>Correcciones ilimitadas</li>
+                    <li>Plataforma de revisión</li>
+                </ul>
+                <div class="ideal-badge">
+                    <strong>Ideal para</strong>
+                    Marcas emergentes que buscan presencia premium constante.
+                </div>
+            </div>
+
+            <div class="pack-card style-b">
+                <div class="pack-meta">
+                    <div class="pack-name">Pack B — Pro</div>
+                    <div class="pack-price">3.5k €<span>/mes</span></div>
+                </div>
+                <ul class="features">
+                    <li>4 Vídeos AGC™ + Variaciones A/B</li>
+                    <li>10 Fotos hiperrealistas</li>
+                    <li>1 Avatar IA (Estilo Genérico)</li>
+                    <li>Estrategia mensual básica</li>
+                    <li>Optimización para Ads</li>
+                </ul>
+                <div class="ideal-badge">
+                    <strong>Ideal para</strong>
+                    Growth teams que necesitan testear creatividades rápido.
+                </div>
+            </div>
+
+            <div class="pack-card style-c">
+                <div class="pack-meta">
+                    <div class="pack-name">Pack C — Growth</div>
+                    <div class="pack-price">5.5k €<span>/mes</span></div>
+                </div>
+                <ul class="features">
+                    <li>16 Vídeos AGC™ mensuales</li>
+                    <li>30 Fotos Premium IA</li>
+                    <li>2 Avatares IA Genéricos</li>
+                    <li>Estrategia Full-Funnel</li>
+                    <li>Dirección de arte dedicada</li>
+                    <li>Variaciones de Hooks ilimitadas</li>
+                </ul>
+                <div class="ideal-badge">
+                    <strong>Ideal para</strong>
+                    Clínicas y E-commerce con inversión alta en Paid Media.
+                </div>
+            </div>
+
+            <div class="pack-card style-d">
+                <div class="pack-meta">
+                    <div class="pack-name">Pack D — Enterprise</div>
+                    <div class="pack-price">10k+<span>/mes</span></div>
+                </div>
+                <ul class="features">
+                    <li>20+ Vídeos AGC™ mensuales</li>
+                    <li>Contenido diario (Reels/Stories)</li>
+                    <li>3 Avatares IA High-End</li>
+                    <li>Kit completo de Ads (25 assets)</li>
+                    <li>Data-driven iteration</li>
+                    <li>Soporte Prioritario 24/7</li>
+                </ul>
+                <div class="ideal-badge">
+                    <strong>Ideal para</strong>
+                    Líderes de mercado que dominan su nicho.
+                </div>
+            </div>
+
+        </div>
+
+        <h2 class="addons-title">Add-ons & Extras</h2>
+        <div class="addons-scroll-container">
+            
+            <div class="addon-item">
+                <div class="addon-header">
+                    <div class="addon-name">Avatar IA<br>Custom</div>
+                    <div class="addon-price-box">
+                        <span class="price-chip">Setup: 1.5k €</span>
+                        <span class="price-sub">+ Mantenimiento</span>
+                    </div>
+                </div>
+                <p>Modelo exclusivo entrenado con rasgos únicos. Nadie más tendrá tu cara.</p>
+            </div>
+
+            <div class="addon-item">
+                <div class="addon-header">
+                    <div class="addon-name">Clonación<br>de Voz</div>
+                    <div class="addon-price-box">
+                        <span class="price-chip">Setup: 600 €</span>
+                        <span class="price-sub">Uso mensual variable</span>
+                    </div>
+                </div>
+                <p>Replica la voz de tu CEO o embajador con emoción y ritmo humano.</p>
+            </div>
+
+            <div class="addon-item">
+                <div class="addon-header">
+                    <div class="addon-name">Pack Fotos<br>Ecommerce</div>
+                    <div class="addon-price-box">
+                        <span class="price-chip">+ 1.000 €</span>
+                        <span class="price-sub">Pago único</span>
+                    </div>
+                </div>
+                <p>Sesiones de producto hiperrealistas con modelos IA en cualquier escenario.</p>
+            </div>
+
+            <div class="addon-item">
+                <div class="addon-header">
+                    <div class="addon-name">Testing<br>Avanzado</div>
+                    <div class="addon-price-box">
+                        <span class="price-chip">+ 500 €</span>
+                        <span class="price-sub">Mensual</span>
+                    </div>
+                </div>
+                <p>Informe detallado de rendimiento creativo y desglose de métricas por hook.</p>
+            </div>
+
+        </div>
+
+        <section class="human-profile">
+            <div class="hp-left">
+                <div class="pill" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">Servicio Elite</div>
+                <h2>Human Profile Creation™</h2>
+                <div class="hp-desc">
+                    El activo digital definitivo. Un embajador de marca eterno, consistente y escalable que reemplaza por completo la necesidad de talento humano.
+                </div>
+                <div class="hp-specs">
+                    <div class="hp-spec-item">
+                        <h5>Rostro Exclusivo</h5>
+                        <p>Modelo facial único con micro-expresiones.</p>
+                    </div>
+                    <div class="hp-spec-item">
+                        <h5>Psicología de Marca</h5>
+                        <p>Personalidad y tono de voz diseñado para vender.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hp-right">
+                <div class="hp-card-display">
+                    <span style="text-transform: uppercase; letter-spacing: 0.1em; font-size: 0.75rem; color: #71717A; display: block; margin-bottom: 12px;">Inversión Setup</span>
+                    <div class="hp-price-big">5.000 €</div>
+                    <span class="hp-price-sub">Incluye entrenamiento y assets iniciales</span>
+                    <a href="#" class="btn-cta">Solicitar Acceso</a>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+</body>
+</html>
