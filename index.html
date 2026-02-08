@@ -3,534 +3,585 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lumina AI - Premium Experience</title>
-    
-    <!-- Fuente Inter: Estándar de la industria para diseño limpio -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-
+    <title>Qantica | Pro Ecosystem v5</title>
     <style>
         :root {
-            /* --- PALETA DE COLORES PREMIUM --- */
-            --bg-body: #FFFFFF;
-            --text-main: #050505;
-            --text-muted: #52525B;
-            
-            /* Fondos de Tarjetas */
-            --pack-a-bg: #F8F8F9;
-            --pack-b-bg: #E4E4E7;
-            --pack-c-bg: #FFFFFF;
-            --pack-d-bg: #09090B;
-
-            --radius-lg: 40px;
-            --radius-md: 24px;
-            
-            /* --- FÍSICA DE ANIMACIÓN (Apple/Revolut Feel) --- */
-            /* Curva Bezier personalizada para movimiento "pesado" y fluido */
-            --ease-ios: cubic-bezier(0.16, 1, 0.3, 1);
+            --bg-core: #000000;
+            --bg-card: #0A0A0A;
+            --accent-yellow: #FFD60A;
+            --accent-silver: #A1A1AA;
+            --accent-green: #32D74B;
+            --accent-red: #FF453A;
+            --accent-blue: #0A84FF;
+            --text-main: #FFFFFF;
+            --text-muted: #666666;
+            --border: rgba(255, 255, 255, 0.15);
+            --ease-apple: cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        /* RESET & BASE */
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
+
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-body);
+            background-color: var(--bg-core);
             color: var(--text-main);
-            line-height: 1.6;
-            overflow-x: hidden; /* Evita scroll horizontal */
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
         }
 
-        /* TEXTURA DE FONDO (Noise Sutil) */
-        .noise-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: -1;
-            opacity: 0.04;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        /* --- UI COMPONENTS --- */
+        .icon-svg { width: 20px; height: 20px; fill: currentColor; }
+        .icon-lg { width: 48px; height: 48px; }
+        .icon-xl { width: 80px; height: 80px; }
+
+        .btn-black {
+            background: #000; border: 1px solid var(--border); color: #fff;
+            padding: 14px 28px; border-radius: 12px; font-size: 0.9rem; font-weight: 600;
+            cursor: pointer; transition: all 0.3s var(--ease-apple);
+            text-transform: uppercase; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 10px;
+        }
+        .btn-black:hover { border-color: var(--accent-yellow); color: var(--accent-yellow); box-shadow: 0 0 20px rgba(255, 214, 10, 0.1); }
+        .btn-black:disabled { opacity: 0.5; cursor: not-allowed; border-color: #333; color: #666; box-shadow: none; }
+
+        /* --- HUD --- */
+        .hud {
+            position: fixed; top: 24px; right: 24px; z-index: 1000;
+            background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(24px);
+            padding: 10px 20px; border-radius: 99px; border: 1px solid var(--border);
+            display: flex; gap: 16px; align-items: center; font-size: 0.8rem; font-weight: 500;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+        .hud-value { color: var(--accent-yellow); font-family: "SF Mono", monospace; font-size: 0.9rem; }
+
+        /* --- SNAKE TIMELINE --- */
+        .snake-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
+        #snakePath { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 1; }
+        #snakePathActive {
+            fill: none; stroke: var(--accent-yellow); stroke-width: 2;
+            stroke-dasharray: 1; stroke-dashoffset: 1;
+            filter: drop-shadow(0 0 8px rgba(255, 214, 10, 0.4));
+            transition: stroke-dashoffset 0.1s linear;
         }
 
-        .container {
-            max-width: 1320px;
-            margin: 0 auto;
-            padding: 0 40px;
+        /* --- SECTIONS --- */
+        section {
+            min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; padding: 100px 20px; transition: opacity 0.8s, filter 0.8s;
         }
-
-        /* --- CLASES DE ANIMACIÓN (SCROLL REVEAL) --- */
+        section.locked { filter: grayscale(1) opacity(0.2) blur(4px); pointer-events: none; user-select: none; }
         
-        /* Efecto: Aparecer desde abajo */
-        .reveal-up {
-            opacity: 0;
-            transform: translateY(80px); /* Empieza 80px abajo */
-            transition: opacity 1.2s var(--ease-ios), transform 1.2s var(--ease-ios);
-            will-change: opacity, transform;
+        .lock-badge {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 10; display: none; flex-direction: column; align-items: center; gap: 10px;
         }
-        
-        .reveal-up.active {
-            opacity: 1;
-            transform: translateY(0);
+        section.locked .lock-badge { display: flex; filter: none; opacity: 1; }
+        .lock-text {
+            background: #111; border: 1px solid var(--accent-silver); color: var(--accent-silver);
+            padding: 6px 16px; border-radius: 6px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px;
         }
 
-        /* Retrasos para efecto cascada */
-        .delay-100 { transition-delay: 0.1s; }
-        .delay-200 { transition-delay: 0.2s; }
-        .delay-300 { transition-delay: 0.3s; }
+        h1 { font-size: 3.5rem; font-weight: 700; text-align: center; letter-spacing: -0.02em; margin-bottom: 10px; line-height: 1; }
+        h2 { font-size: 1.2rem; margin-bottom: 20px; color: var(--accent-yellow); text-transform: uppercase; letter-spacing: 4px; font-weight: 600; text-align: center; }
+        p { max-width: 500px; text-align: center; color: var(--text-muted); margin-bottom: 50px; font-size: 1rem; line-height: 1.6; }
 
-        /* --- HERO SECTION --- */
-        .hero {
-            padding: 160px 0 120px;
-            min-height: 90vh; /* Pantalla casi completa */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+        /* --- PHASE 1: ANALYSIS & EXPOSURE --- */
+        .core-interface { position: relative; width: 300px; height: 300px; display: flex; align-items: center; justify-content: center; }
+        #p1-target { position: absolute; width:1px; height:1px; } 
+
+        .hold-btn {
+            width: 200px; height: 200px; border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #1a1a1a, #000);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; position: relative; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            transition: transform 0.2s var(--ease-apple);
+        }
+        .hold-btn:active { transform: scale(0.96); border-color: var(--accent-yellow); }
+        .hold-progress-fill { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: rgba(255, 214, 10, 0.1); transition: height 0.05s linear; }
+
+        /* Creator Analysis Dashboard */
+        .analysis-dashboard {
+            display: none; grid-template-columns: repeat(2, 1fr); gap: 15px;
+            width: 100%; max-width: 600px; margin-top: 30px;
+            animation: fadeIn 1s;
+        }
+        .stat-card {
+            background: #0A0A0A; border: 1px solid #222; padding: 15px; border-radius: 12px;
+            display: flex; flex-direction: column; gap: 5px; opacity: 0;
+            animation: slideUp 0.5s forwards;
+        }
+        .stat-label { font-size: 0.7rem; color: #666; text-transform: uppercase; }
+        .stat-value { font-size: 1.1rem; color: #fff; font-family: monospace; }
+        .progress-mini { width: 100%; height: 4px; background: #222; margin-top: 5px; border-radius: 2px; }
+        .progress-mini-fill { height: 100%; background: var(--accent-blue); width: 0%; transition: width 1s; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* --- PHASE 2: COMMUNITY & CHAT --- */
+        .market-grid {
+            display: grid; grid-template-columns: 260px 1fr; gap: 30px;
+            width: 100%; max-width: 1000px;
         }
 
-        .pill {
-            display: inline-flex;
-            align-items: center;
-            height: 32px;
-            padding: 0 16px;
-            border-radius: 100px;
-            background: var(--text-main);
-            color: #fff;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 40px;
+        .channel-list { display: flex; flex-direction: column; gap: 10px; }
+        .channel-btn {
+            padding: 15px; background: #0A0A0A; border: 1px solid var(--border); border-radius: 12px;
+            color: #888; text-align: left; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between;
+        }
+        .channel-btn:hover, .channel-btn.active { border-color: var(--accent-yellow); color: #fff; background: rgba(255,255,255,0.02); }
+        .channel-tag { width: 8px; height: 8px; border-radius: 50%; background: #333; }
+        .channel-btn.active .channel-tag { background: var(--accent-green); box-shadow: 0 0 5px var(--accent-green); }
+
+        .chat-terminal {
+            background: #050505; border: 1px solid var(--border); border-radius: 20px;
+            height: 500px; display: flex; flex-direction: column; position: relative; overflow: hidden;
+        }
+        #p2-target { position: absolute; top:50%; left:50%; width:1px; height:1px; }
+
+        .chat-tabs {
+            display: flex; border-bottom: 1px solid #222;
+        }
+        .chat-tab {
+            flex: 1; padding: 15px; text-align: center; font-size: 0.8rem; cursor: pointer; color: #666;
+            border-bottom: 2px solid transparent;
+        }
+        .chat-tab.active { color: #fff; border-bottom-color: var(--accent-yellow); }
+
+        .chat-feed { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
+        .chat-input-box { padding: 20px; border-top: 1px solid #222; display: flex; gap: 10px; }
+        .input-field { flex: 1; background: #111; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; outline: none; }
+        .chat-msg { font-size: 0.9rem; line-height: 1.4; animation: fadeUp 0.3s; }
+        .chat-user { font-weight: 700; margin-right: 8px; }
+
+        /* --- PHASE 3: FINANCE ALERT --- */
+        .finance-wrapper { width: 100%; max-width: 600px; }
+        #p3-target { position: absolute; top:50%; left:50%; width:1px; height:1px; }
+
+        .alert-box {
+            background: rgba(255, 69, 58, 0.1); border: 1px solid var(--accent-red);
+            padding: 20px; border-radius: 12px; margin-bottom: 30px; text-align: center;
+            animation: pulse-red 2s infinite;
+        }
+        .funding-progress-container {
+            width: 100%; height: 10px; background: #222; border-radius: 5px; margin: 30px 0; overflow: hidden;
+        }
+        .funding-bar {
+            height: 100%; background: linear-gradient(90deg, var(--accent-yellow), var(--accent-green));
+            width: 85%; transition: width 1s ease-out; position: relative;
+        }
+        .funding-stats { display: flex; justify-content: space-between; font-family: monospace; font-size: 0.9rem; color: #888; }
+
+        .invest-controls {
+            background: #111; padding: 30px; border-radius: 16px; border: 1px solid #333; text-align: center;
         }
 
-        .hero-headline {
-            font-size: clamp(3.5rem, 6.5vw, 6.5rem);
-            font-weight: 900;
-            line-height: 1;
-            letter-spacing: -0.04em;
-            margin-bottom: 32px;
-            /* Importante para el parallax */
-            transform-origin: left center;
-            will-change: transform, opacity;
+        /* --- PHASE 4: GREENLIGHT --- */
+        .certificate-container {
+            border: 1px solid var(--border); background: #080808; padding: 60px;
+            max-width: 700px; width: 100%; text-align: center; position: relative; border-radius: 4px;
+        }
+        #p4-target { position: absolute; top:50%; left:50%; width:1px; height:1px; }
+
+        .stamp-seal {
+            margin: 0 auto 30px; width: 100px; height: 100px; border-radius: 50%;
+            border: 4px double var(--accent-green); color: var(--accent-green);
+            display: flex; align-items: center; justify-content: center;
         }
 
-        .hero-sub {
-            font-size: 1.5rem;
-            color: var(--text-muted);
-            max-width: 800px;
-            font-weight: 400;
-            letter-spacing: -0.02em;
+        .email-capture {
+            margin-top: 30px; display: flex; gap: 10px; max-width: 400px; margin-left: auto; margin-right: auto;
         }
 
-        /* --- FEATURES GRID --- */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 48px;
-            padding: 80px 0;
-            border-top: 1px solid rgba(0,0,0,0.08);
-            margin-bottom: 80px;
-        }
-
-        .feat-item h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
-        .feat-item p { color: var(--text-muted); font-size: 0.95rem; }
-
-        /* --- PRICING --- */
-        .section-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 60px;
-            letter-spacing: -0.03em;
-        }
-
-        .pricing-wrapper {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 24px;
-            align-items: stretch;
-            margin-bottom: 160px;
-        }
-
-        .pack-card {
-            background: var(--pack-a-bg);
-            border-radius: var(--radius-lg);
-            padding: 40px 32px;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid transparent;
-            /* Interacción Hover */
-            transition: transform 0.6s var(--ease-ios), box-shadow 0.6s var(--ease-ios);
-        }
-
-        .pack-card:hover {
-            transform: translateY(-12px) scale(1.02);
-            box-shadow: 0 40px 80px rgba(0,0,0,0.08);
-            z-index: 10;
-        }
-
-        .pack-card.style-b { background: var(--pack-b-bg); }
-        
-        .pack-card.style-c { 
-            background: var(--pack-c-bg); 
-            border: 1px solid #000; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
-        }
-        
-        .pack-card.style-d { background: var(--pack-d-bg); color: #fff; }
-
-        /* Tipografía interna cards */
-        .pack-name { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.6; margin-bottom: 16px; }
-        .pack-price { font-size: 3rem; font-weight: 800; line-height: 1; margin-bottom: 32px; letter-spacing: -0.05em; }
-        .pack-price span { font-size: 1rem; font-weight: 500; opacity: 0.6; margin-left: 4px; }
-        
-        .features { list-style: none; flex-grow: 1; margin-bottom: 40px; }
-        .features li { margin-bottom: 14px; padding-left: 18px; position: relative; font-size: 0.95rem; font-weight: 500; }
-        .features li::before { content: '•'; position: absolute; left: 0; color: inherit; opacity: 0.5; }
-
-        .ideal-box { background: rgba(0,0,0,0.05); padding: 20px; border-radius: 20px; font-size: 0.8rem; }
-        .pack-card.style-d .ideal-box { background: rgba(255,255,255,0.1); }
-        
-        /* Ajustes color oscuro */
-        .pack-card.style-d .pack-name, .pack-card.style-d .features li, .pack-card.style-d .pack-price span { color: #A1A1AA; }
-        .pack-card.style-d .pack-price { color: #fff; }
-
-        /* --- ADD ONS (Horizontal Scroll) --- */
-        .addons-title { font-size: 2rem; margin-bottom: 30px; border-top: 1px solid rgba(0,0,0,0.08); padding-top: 80px; }
-        
-        .addons-container {
-            display: flex;
-            gap: 24px;
-            overflow-x: auto;
-            padding-bottom: 40px;
-            scrollbar-width: none; /* Ocultar barra scroll Firefox */
-            -ms-overflow-style: none;
-        }
-        .addons-container::-webkit-scrollbar { display: none; /* Ocultar barra scroll Chrome/Safari */ }
-
-        .addon-card {
-            min-width: 320px;
-            background: #fff;
-            border: 1px solid rgba(0,0,0,0.1);
-            border-radius: 24px;
-            padding: 32px;
-            transition: all 0.3s;
-        }
-        .addon-card:hover { border-color: #000; transform: translateY(-4px); }
-        
-        .addon-head { display: flex; justify-content: space-between; margin-bottom: 16px; }
-        .addon-tag { background: #000; color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; }
-
-        /* --- SECCIÓN HUMAN PROFILE (LA MAGIA "BREATHING") --- */
-        .hp-section-wrapper {
-            padding: 100px 0 150px 0;
-            display: flex;
-            justify-content: center;
-            perspective: 1000px;
-        }
-
-        .human-profile {
-            background: var(--pack-d-bg);
-            color: #fff;
-            border-radius: var(--radius-lg);
-            padding: 80px;
-            display: grid;
-            grid-template-columns: 1.2fr 0.8fr;
-            gap: 60px;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-            
-            /* --- ESTADO INICIAL (ENCOGIDO) --- */
-            width: 100%;
-            transform: scale(0.9) translateY(40px); /* Ligeramente más pequeño y abajo */
-            opacity: 0.6; /* Un poco transparente */
-            transition: all 1.4s var(--ease-ios); /* Transición muy lenta y premium */
-            box-shadow: 0 0 0 rgba(0,0,0,0);
-        }
-
-        /* --- ESTADO EXPANDIDO (CUANDO SE VE) --- */
-        .human-profile.expanded {
-            transform: scale(1) translateY(0); /* Tamaño real */
-            opacity: 1;
-            box-shadow: 0 50px 120px rgba(0,0,0,0.4); /* Sombra dramática */
-        }
-
-        /* Efecto Glow animado */
-        .hp-glow {
-            position: absolute;
-            top: -50%; right: -50%;
-            width: 100%; height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 65%);
-            opacity: 0;
-            transition: opacity 2s ease;
-            pointer-events: none;
-        }
-        .human-profile.expanded .hp-glow { opacity: 1; }
-
-        .hp-content h2 { font-size: 3.5rem; margin-bottom: 24px; color: #fff; }
-        .hp-content p { font-size: 1.1rem; color: #A1A1AA; border-left: 2px solid #fff; padding-left: 20px; }
-        
-        .hp-card-price {
-            background: linear-gradient(145deg, #18181B, #000);
-            border: 1px solid #333;
-            border-radius: 32px;
-            padding: 40px;
-            text-align: center;
-        }
-
-        .cta-btn {
-            background: #fff;
-            color: #000;
-            padding: 16px 32px;
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 700;
-            display: inline-block;
-            transition: transform 0.2s;
-        }
-        .cta-btn:hover { transform: scale(0.96); }
-
-        /* --- RESPONSIVE --- */
-        @media (max-width: 1200px) {
-            .pricing-wrapper { grid-template-columns: 1fr 1fr; }
-            .human-profile { grid-template-columns: 1fr; text-align: center; padding: 40px; }
-            .hp-content p { border-left: none; padding-left: 0; }
-        }
-        @media (max-width: 768px) {
-            .hero-headline { font-size: 3rem; }
-            .pricing-wrapper { grid-template-columns: 1fr; }
-            .features-grid { grid-template-columns: 1fr; gap: 32px; }
-            .human-profile { padding: 30px; }
-            .hp-content h2 { font-size: 2.2rem; }
-        }
-
+        /* ANIMATIONS */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } }
+        @keyframes pulse-red { 0% { box-shadow: 0 0 0 rgba(255, 69, 58, 0); } 50% { box-shadow: 0 0 15px rgba(255, 69, 58, 0.2); } }
     </style>
 </head>
 <body>
 
-    <div class="noise-overlay"></div>
-
-    <div class="container">
-        
-        <!-- HERO SECTION (Con Parallax en el título) -->
-        <header class="hero">
-            <div class="reveal-up">
-                <div class="pill">Lumina AI — Pricing 2025</div>
-            </div>
-            
-            <!-- ID para el efecto Parallax JS -->
-            <h1 class="hero-headline reveal-up delay-100" id="parallax-title">
-                Escala tu identidad<br>
-                <span style="color: #52525B;">con estética humana.</span>
-            </h1>
-            
-            <p class="hero-sub reveal-up delay-200">
-                La plataforma Enterprise para generar contenido visual indistinguible de la realidad. Sin actores, sin límites físicos.
-            </p>
-
-            <div class="features-grid reveal-up delay-300">
-                <div class="feat-item">
-                    <h4>Identidad Continua</h4>
-                    <p>Rostros y voces consistentes que eliminan la dependencia de talento humano.</p>
-                </div>
-                <div class="feat-item">
-                    <h4>Performance Ads</h4>
-                    <p>Creativos optimizados con frameworks de venta listos para Meta y TikTok.</p>
-                </div>
-                <div class="feat-item">
-                    <h4>Calidad Enterprise</h4>
-                    <p>Resolución 4K, iluminación editorial y micro-expresiones realistas.</p>
-                </div>
-            </div>
-        </header>
-
-        <!-- PRICING SECTION -->
-        <h2 class="section-title reveal-up">Packs Mensuales</h2>
-        
-        <div class="pricing-wrapper">
-            <!-- PACK A -->
-            <div class="pack-card reveal-up delay-100">
-                <div class="pack-name">Pack A — Base</div>
-                <div class="pack-price">2k €<span>/mes</span></div>
-                <ul class="features">
-                    <li>4 Vídeos AGC™ (Vertical)</li>
-                    <li>Guiones optimizados</li>
-                    <li>Estética coherente</li>
-                    <li>Correcciones ilimitadas</li>
-                </ul>
-                <div class="ideal-box">
-                    <strong>Ideal para:</strong> Startups
-                </div>
-            </div>
-
-            <!-- PACK B -->
-            <div class="pack-card style-b reveal-up delay-200">
-                <div class="pack-name">Pack B — Pro</div>
-                <div class="pack-price">3.5k €<span>/mes</span></div>
-                <ul class="features">
-                    <li>4 Vídeos AGC™ + A/B Test</li>
-                    <li>10 Fotos hiperrealistas</li>
-                    <li>1 Avatar IA Genérico</li>
-                    <li>Estrategia básica</li>
-                </ul>
-                <div class="ideal-box">
-                    <strong>Ideal para:</strong> Growth
-                </div>
-            </div>
-
-            <!-- PACK C -->
-            <div class="pack-card style-c reveal-up delay-300">
-                <div class="pack-name">Pack C — Growth</div>
-                <div class="pack-price">5.5k €<span>/mes</span></div>
-                <ul class="features">
-                    <li>16 Vídeos Mensuales</li>
-                    <li>30 Fotos Premium</li>
-                    <li>2 Avatares IA</li>
-                    <li>Dirección Creativa</li>
-                    <li>Full Funnel Ads</li>
-                </ul>
-                <div class="ideal-box">
-                    <strong>Ideal para:</strong> Scale-ups
-                </div>
-            </div>
-
-            <!-- PACK D -->
-            <div class="pack-card style-d reveal-up delay-300">
-                <div class="pack-name">Pack D — Enterprise</div>
-                <div class="pack-price">10k+<span>/mes</span></div>
-                <ul class="features">
-                    <li>Contenido Diario (Reels/Stories)</li>
-                    <li>3 Avatares Custom</li>
-                    <li>25+ Ads Assets</li>
-                    <li>Soporte 24/7</li>
-                    <li>Data Driven Iteration</li>
-                </ul>
-                <div class="ideal-box">
-                    <strong>Ideal para:</strong> Líderes
-                </div>
-            </div>
-        </div>
-
-        <!-- ADD ONS -->
-        <h2 class="addons-title reveal-up">Add-ons Exclusivos</h2>
-        <div class="addons-container reveal-up">
-            <div class="addon-card">
-                <div class="addon-head">
-                    <strong>Avatar Custom</strong>
-                    <span class="addon-tag">1.5k € Setup</span>
-                </div>
-                <p style="font-size: 0.9rem; color: #666;">Modelo entrenado exclusivamente con tus rasgos de marca únicos.</p>
-            </div>
-            <div class="addon-card">
-                <div class="addon-head">
-                    <strong>Voz Clonada</strong>
-                    <span class="addon-tag">600 € Setup</span>
-                </div>
-                <p style="font-size: 0.9rem; color: #666;">Réplica neuronal de voz humana con emoción y pausas.</p>
-            </div>
-            <div class="addon-card">
-                <div class="addon-head">
-                    <strong>Fotos Ecom</strong>
-                    <span class="addon-tag">+ 1k € Pack</span>
-                </div>
-                <p style="font-size: 0.9rem; color: #666;">Producto en situaciones de lifestyle imposible de fotografiar.</p>
-            </div>
-            <div class="addon-card">
-                <div class="addon-head">
-                    <strong>Ads Testing</strong>
-                    <span class="addon-tag">500 € / mes</span>
-                </div>
-                <p style="font-size: 0.9rem; color: #666;">Pruebas A/B profundas sobre Hooks y guiones ganadores.</p>
-            </div>
-        </div>
-
-        <!-- HUMAN PROFILE SECTION (La que se expande y contrae) -->
-        <div class="hp-section-wrapper">
-            <!-- ID usado por el JS para la animación -->
-            <div class="human-profile" id="expandable-card">
-                <div class="hp-glow"></div>
-                
-                <div class="hp-content">
-                    <div class="pill" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">Servicio Elite</div>
-                    <h2>Human Profile Creation™</h2>
-                    <p>
-                        Creamos un ser humano digital completo. Personalidad, rostro, voz y psicología de marca en un activo eterno que escala infinitamente.
-                    </p>
-                </div>
-                
-                <div class="hp-card-price">
-                    <span style="color: #666; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; display: block; margin-bottom: 10px;">Setup Fee</span>
-                    <div style="font-size: 3.5rem; font-weight: 800; margin-bottom: 8px; line-height: 1;">5.000 €</div>
-                    <span style="display:block; color: #52525B; font-size: 0.9rem; margin-bottom: 24px;">+ 300 € Mantenimiento mensual</span>
-                    <a href="#" class="cta-btn">Solicitar Acceso</a>
-                </div>
-            </div>
-        </div>
-
+    <!-- HUD -->
+    <div class="hud">
+        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12z"/><path d="M12 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
+        <span class="hud-value" id="hudTokens">5,000 QT</span>
     </div>
 
-    <!-- SCRIPT DE INTERACCIONES Y SCROLL -->
+    <!-- SNAKE LINE -->
+    <svg class="snake-container">
+        <path id="snakePath" />
+        <path id="snakePathActive" />
+    </svg>
+
+    <!-- 0. INTRO -->
+    <section id="sec-intro">
+        <div style="color: var(--accent-yellow); font-size: 0.75rem; letter-spacing: 3px; margin-bottom: 20px; text-transform: uppercase;">Qantica Studio Ecosystem</div>
+        <h1>PRODUCTION<br>PIPELINE</h1>
+        <p>Inicia el proceso. Analiza el mercado, activa la comunidad y cierra la ronda de inversión para desbloquear el Greenlight.</p>
+        
+        <button class="btn-black" onclick="document.getElementById('sec-transform').scrollIntoView({behavior:'smooth'})">
+            Iniciar Proceso
+        </button>
+        <div id="p0-target" style="position:absolute; top:80%; left:50%;"></div>
+    </section>
+
+    <!-- 1. ANALYSIS & EXPOSURE -->
+    <section id="sec-transform">
+        <h2>Fase 01: Análisis y Exposición</h2>
+        <p>Genera el activo de <strong>BadNight</strong>. El sistema analizará demografía y mercado antes de la exposición pública.</p>
+        
+        <div class="core-interface">
+            <div id="p1-target"></div>
+            
+            <div class="hold-btn" id="holdBtn" 
+                 onmousedown="startHold()" onmouseup="endHold()" onmouseleave="endHold()" 
+                 ontouchstart="startHold()" ontouchend="endHold()">
+                
+                <div class="hold-progress-fill" id="holdFill"></div>
+                <svg id="icon-main" class="icon-xl" style="color: white; z-index: 2;" viewBox="0 0 24 24">
+                    <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                </svg>
+                <div id="hold-text" style="margin-top: 15px; font-size: 0.7rem; color: #888; letter-spacing: 2px; text-transform: uppercase; z-index: 2;">
+                    Hold to Analyze
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden Analysis Dashboard -->
+        <div class="analysis-dashboard" id="analysisDash">
+            <div class="stat-card" style="animation-delay: 0.1s">
+                <span class="stat-label">Segmentación</span>
+                <span class="stat-value">Young Adult (18-35)</span>
+                <div class="progress-mini"><div class="progress-mini-fill" style="width:85%"></div></div>
+            </div>
+            <div class="stat-card" style="animation-delay: 0.2s">
+                <span class="stat-label">Mercado</span>
+                <span class="stat-value">LatAm / Europe</span>
+                <div class="progress-mini"><div class="progress-mini-fill" style="width:70%"></div></div>
+            </div>
+            <div class="stat-card" style="animation-delay: 0.3s">
+                <span class="stat-label">Engagement Social</span>
+                <span class="stat-value">High Potential</span>
+                <div class="progress-mini"><div class="progress-mini-fill" style="width:92%"></div></div>
+            </div>
+            <div class="stat-card" style="animation-delay: 0.4s">
+                <span class="stat-label">Espacios Digitales</span>
+                <span class="stat-value" style="color:var(--accent-green)">ACTIVATED</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. COMMUNITY & CHAT -->
+    <section id="sec-social" class="locked">
+        <div class="lock-badge"><div class="lock-text">Requiere Análisis</div></div>
+
+        <h2>Fase 02: Comunidad & Networking</h2>
+        <p>Interactúa en los canales de proyectos. Los colores indican usuarios verificados.</p>
+
+        <div class="market-grid">
+            <div class="channel-list">
+                <div class="channel-btn active" onclick="switchChannel('badnight')">
+                    <div>#BadNight</div>
+                    <div class="channel-tag"></div>
+                </div>
+                <div class="channel-btn" onclick="switchChannel('fragil')">
+                    <div>#Frágil</div>
+                    <div class="channel-tag"></div>
+                </div>
+                <div class="channel-btn" onclick="switchChannel('quiebre')">
+                    <div>#PuntoDeQuiebre</div>
+                    <div class="channel-tag"></div>
+                </div>
+                <div style="height:1px; background:#222; margin:10px 0;"></div>
+                <div class="channel-btn" onclick="switchChannel('private')">
+                    <div>Mensajes Privados</div>
+                    <div style="font-size:0.8rem; color:#666;">3 New</div>
+                </div>
+            </div>
+
+            <div class="chat-terminal">
+                <div id="p2-target"></div>
+                
+                <div class="chat-tabs">
+                    <div class="chat-tab active">Chat Público</div>
+                    <div class="chat-tab">Anuncios</div>
+                </div>
+
+                <div class="chat-feed" id="chatFeed">
+                    <!-- Messages -->
+                </div>
+                <div class="chat-input-box">
+                    <input type="text" class="input-field" id="userMsg" placeholder="Escribe en #BadNight..." onkeypress="handleEnter(event)">
+                    <button class="btn-black" style="padding: 10px 20px;" onclick="sendUserMsg()">SEND</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. FINANCE ALERT & GAP FUNDING -->
+    <section id="sec-finance" class="locked">
+        <div class="lock-badge"><div class="lock-text">Requiere Validación</div></div>
+
+        <h2>Fase 03: Cierre de Ronda</h2>
+        <p>Tu proyecto ha alcanzado una tracción crítica. Usa tus tokens para completar el último tramo de financiación.</p>
+
+        <div class="finance-wrapper">
+            <div id="p3-target"></div>
+
+            <div class="alert-box">
+                <strong style="color:var(--accent-red); display:block; margin-bottom:5px;">⚠️ OPORTUNIDAD DE CIERRE</strong>
+                El proyecto está financiado al 85%. ¡Invierte tú también para asegurar el Greenlight!
+            </div>
+
+            <div class="funding-progress-container">
+                <div class="funding-bar" id="fundBar"></div>
+            </div>
+            <div class="funding-stats">
+                <span>RECAUDADO: 85,000 QT</span>
+                <span>META: 100,000 QT</span>
+            </div>
+
+            <div class="invest-controls" style="margin-top:30px;">
+                <div style="margin-bottom:20px; font-size:1.2rem;">Tu Aportación: <span style="color:var(--accent-yellow)">15,000 QT</span></div>
+                <button class="btn-black" style="width:100%; justify-content:center;" onclick="completeFunding()">
+                    INVERTIR Y CERRAR RONDA
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. GREENLIGHT & SUBSCRIBE -->
+    <section id="sec-success" class="locked">
+        <div class="lock-badge"><div class="lock-text">Esperando Cierre</div></div>
+
+        <div class="certificate-container">
+            <div id="p4-target"></div>
+            
+            <div class="stamp-seal">
+                <svg class="icon-lg" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            </div>
+            
+            <h1 style="color: var(--accent-green); font-size: 3rem;">GREENLIGHT</h1>
+            <p style="margin-bottom: 20px;">PRODUCCIÓN AUTORIZADA</p>
+
+            <div style="color: #ccc; font-family: monospace; border-top: 1px solid #333; padding-top: 20px; margin-top: 20px;">
+                PROJECT: BADNIGHT<br>
+                STATUS: 100% FUNDED<br>
+                NEXT STEP: PRE-PRODUCTION
+            </div>
+
+            <div class="email-capture" id="emailForm">
+                <input type="email" placeholder="tu@email.com" class="input-field" id="notifyEmail">
+                <button class="btn-black" onclick="subscribeEmail()">Notificarme</button>
+            </div>
+            <div id="emailSuccess" style="display:none; color:var(--accent-green); margin-top:20px;">
+                ✓ Suscripción confirmada. Te avisaremos el primer día de rodaje.
+            </div>
+        </div>
+    </section>
+
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            
-            // 1. REVEAL UP (Para elementos que aparecen al bajar)
-            const revealOptions = {
-                threshold: 0.1, 
-                rootMargin: "0px 0px -50px 0px"
-            };
-
-            const revealOnScroll = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('active');
-                        // Se deja de observar para que no parpadee al subir y bajar
-                        observer.unobserve(entry.target); 
-                    }
-                });
-            }, revealOptions);
-
-            document.querySelectorAll('.reveal-up').forEach(el => {
-                revealOnScroll.observe(el);
+        // --- SNAKE LOGIC ---
+        function updateSnake() {
+            const targets = ['p0', 'p1', 'p2', 'p3', 'p4'].map(id => {
+                const el = document.getElementById(id + '-target');
+                if(!el) return {x:0, y:0};
+                const rect = el.getBoundingClientRect();
+                return { x: rect.left + rect.width/2, y: rect.top + window.scrollY };
             });
 
+            let d = `M ${targets[0].x} ${targets[0].y}`;
+            for(let i=0; i<targets.length-1; i++){
+                const curr = targets[i];
+                const next = targets[i+1];
+                const midY = (curr.y + next.y) / 2;
+                d += ` C ${curr.x} ${midY}, ${next.x} ${midY}, ${next.x} ${next.y}`;
+            }
 
-            // 2. EXPANDABLE CARD (La animación de ida y vuelta que pediste)
-            // Esta no usa 'unobserve', así que funciona siempre que entras/sales
-            const expandOptions = {
-                threshold: 0.35, // Se activa cuando el 35% de la tarjeta es visible
-                rootMargin: "0px"
-            };
-
-            const expandOnScroll = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        // Cuando entra en pantalla: Se expande
-                        entry.target.classList.add('expanded');
-                    } else {
-                        // Cuando sale de pantalla: Se encoge (vuelve a su lugar)
-                        entry.target.classList.remove('expanded');
-                    }
-                });
-            }, expandOptions);
-
-            const expandCard = document.getElementById('expandable-card');
-            if(expandCard) expandOnScroll.observe(expandCard);
-
-
-            // 3. PARALLAX EFFECT EN TITULO
-            const title = document.getElementById('parallax-title');
+            const path = document.getElementById('snakePath');
+            const pathActive = document.getElementById('snakePathActive');
             
-            window.addEventListener('scroll', () => {
-                // Solo calculamos si estamos en la parte superior para rendimiento
-                if (window.scrollY < 800) {
-                    const scrolled = window.scrollY;
-                    // El título baja más lento (0.3) y se desvanece
-                    title.style.transform = `translateY(${scrolled * 0.3}px)`;
-                    title.style.opacity = 1 - (scrolled / 500);
+            path.setAttribute('d', d);
+            pathActive.setAttribute('d', d);
+
+            const len = path.getTotalLength();
+            pathActive.style.strokeDasharray = len;
+            
+            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = Math.min(Math.max(window.scrollY / maxScroll, 0), 1);
+            
+            pathActive.style.strokeDashoffset = len - (progress * len);
+        }
+
+        window.addEventListener('scroll', updateSnake);
+        window.addEventListener('resize', updateSnake);
+        setTimeout(updateSnake, 100);
+
+        // --- PHASE 1: ANALYSIS ---
+        let holdTimer;
+        let holdVal = 0;
+        const holdFill = document.getElementById('holdFill');
+        const holdText = document.getElementById('hold-text');
+        const dash = document.getElementById('analysisDash');
+        let phase = 1;
+
+        function startHold() {
+            if(phase > 1) return;
+            holdTimer = setInterval(() => {
+                holdVal += 2;
+                holdFill.style.height = holdVal + '%';
+                if(holdVal >= 100) {
+                    clearInterval(holdTimer);
+                    runAnalysis();
                 }
-            });
+            }, 30);
+        }
 
-        });
+        function endHold() {
+            if(phase > 1) return;
+            clearInterval(holdTimer);
+            holdVal = 0;
+            holdFill.style.height = '0%';
+        }
+
+        function runAnalysis() {
+            phase = 2;
+            holdText.innerText = "ANALYZING DATA...";
+            holdText.style.color = "var(--accent-blue)";
+            holdFill.style.background = "var(--accent-blue)";
+            
+            // Show Dashboard
+            setTimeout(() => {
+                dash.style.display = 'grid';
+            }, 500);
+
+            // Unlock next phase after reading analysis
+            setTimeout(() => {
+                unlockSection('sec-social');
+                startBotChat('badnight'); // Start chat logic
+                document.getElementById('sec-social').scrollIntoView({behavior:'smooth'});
+            }, 3500);
+        }
+
+        // --- PHASE 2: CHAT LOGIC ---
+        const colors = ['#FFD60A', '#32D74B', '#0A84FF', '#FF453A', '#BF5AF2', '#FF9F0A'];
+        
+        const chatData = {
+            'badnight': [
+                {u: 'CineFan99', t: '¿Vieron el desglose de personajes?'},
+                {u: 'Prod_X', t: 'El análisis de mercado se ve sólido.'},
+                {u: 'Investor01', t: 'Voy a entrar en la ronda final.'}
+            ],
+            'fragil': [
+                {u: 'DramaQueen', t: 'Qué historia tan conmovedora.'},
+                {u: 'IndieLover', t: 'Espero que consiga financiación.'}
+            ],
+            'quiebre': [
+                {u: 'ActionMan', t: '¡Pura adrenalina!'},
+            ],
+            'private': [
+                {u: 'QanticaSupport', t: 'Tu perfil ha sido verificado.'},
+                {u: 'Agent_K', t: 'Tenemos una propuesta de distribución.'}
+            ]
+        };
+
+        let currentChannel = 'badnight';
+
+        function switchChannel(channel) {
+            currentChannel = channel;
+            
+            // Update UI buttons
+            document.querySelectorAll('.channel-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            // Clear feed and load new messages
+            const feed = document.getElementById('chatFeed');
+            feed.innerHTML = '';
+            
+            const msgs = chatData[channel] || [];
+            msgs.forEach(m => addMsg(m.u, m.t));
+            
+            // Update placeholder
+            document.getElementById('userMsg').placeholder = `Escribe en #${channel}...`;
+        }
+
+        function addMsg(user, text, isMe = false) {
+            const feed = document.getElementById('chatFeed');
+            const div = document.createElement('div');
+            div.className = 'chat-msg';
+            
+            // Assign random color based on username hash simply
+            let color = isMe ? '#fff' : colors[user.length % colors.length];
+            
+            div.innerHTML = `<span class="chat-user" style="color:${color}">${user}:</span> <span style="color:#ccc">${text}</span>`;
+            feed.appendChild(div);
+            feed.scrollTop = feed.scrollHeight;
+        }
+
+        function startBotChat(channel) {
+            const msgs = chatData[channel];
+            let i = 0;
+            // Load initial messages
+            msgs.forEach(m => addMsg(m.u, m.t));
+            
+            // Simulate live incoming
+            setInterval(() => {
+                if(Math.random() > 0.7 && phase === 2) {
+                    const randomUser = "User_" + Math.floor(Math.random()*1000);
+                    const texts = ["Increíble proyecto", "Hype!", "¿Cuándo cierra la ronda?", "Saludos desde Madrid"];
+                    addMsg(randomUser, texts[Math.floor(Math.random()*texts.length)]);
+                }
+            }, 3000);
+        }
+
+        function handleEnter(e) { if(e.key === 'Enter') sendUserMsg(); }
+
+        function sendUserMsg() {
+            const inp = document.getElementById('userMsg');
+            if(inp.value.trim() === "") return;
+            addMsg("TÚ", inp.value, true);
+            inp.value = "";
+            
+            // Interaction here triggers next phase unlock
+            if(phase === 2) {
+                setTimeout(() => {
+                    unlockSection('sec-finance');
+                }, 2000);
+            }
+        }
+
+        // --- PHASE 3: FINANCE ---
+        function completeFunding() {
+            const bar = document.getElementById('fundBar');
+            bar.style.width = "100%";
+            bar.style.background = "var(--accent-green)";
+            
+            // Deduct tokens visual
+            document.getElementById('hudTokens').innerText = "0 QT";
+            
+            setTimeout(() => {
+                phase = 4;
+                unlockSection('sec-success');
+                document.getElementById('sec-success').scrollIntoView({behavior:'smooth'});
+            }, 1500);
+        }
+
+        // --- PHASE 4: EMAIL ---
+        function subscribeEmail() {
+            const email = document.getElementById('notifyEmail').value;
+            if(email.includes('@')) {
+                document.getElementById('emailForm').style.display = 'none';
+                document.getElementById('emailSuccess').style.display = 'block';
+            } else {
+                alert("Por favor ingresa un email válido.");
+            }
+        }
+
+        // --- UTILS ---
+        function unlockSection(id) {
+            document.getElementById(id).classList.remove('locked');
+        }
     </script>
 </body>
 </html>
