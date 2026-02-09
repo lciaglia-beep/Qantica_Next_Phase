@@ -2,24 +2,24 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Qantica | Pro Ecosystem v5</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Qantica | Pro Ecosystem Mobile</title>
     <style>
         :root {
             --bg-core: #000000;
-            --bg-card: #0A0A0A;
+            --bg-card: #121212;
             --accent-yellow: #FFD60A;
             --accent-silver: #A1A1AA;
-            --accent-green: #32D74B;
+            --accent-green: #30D158;
             --accent-red: #FF453A;
             --accent-blue: #0A84FF;
             --text-main: #FFFFFF;
-            --text-muted: #666666;
-            --border: rgba(255, 255, 255, 0.15);
+            --text-muted: #86868b;
+            --border: rgba(255, 255, 255, 0.12);
             --ease-apple: cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
 
         body {
             background-color: var(--bg-core);
@@ -27,561 +27,550 @@
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
+            padding-bottom: 50px; /* Space for mobile scroll */
         }
 
-        /* --- UI COMPONENTS --- */
-        .icon-svg { width: 20px; height: 20px; fill: currentColor; }
-        .icon-lg { width: 48px; height: 48px; }
-        .icon-xl { width: 80px; height: 80px; }
-
-        .btn-black {
-            background: #000; border: 1px solid var(--border); color: #fff;
-            padding: 14px 28px; border-radius: 12px; font-size: 0.9rem; font-weight: 600;
-            cursor: pointer; transition: all 0.3s var(--ease-apple);
-            text-transform: uppercase; letter-spacing: 1px; display: inline-flex; align-items: center; gap: 10px;
+        /* --- NOTIFICATIONS (Dynamic Island Style) --- */
+        .toast-notification {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            background: rgba(20, 20, 20, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 12px 20px;
+            border-radius: 99px;
+            display: flex; align-items: center; gap: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            z-index: 2000;
+            transition: top 0.5s var(--ease-apple);
+            width: 90%; max-width: 400px;
         }
-        .btn-black:hover { border-color: var(--accent-yellow); color: var(--accent-yellow); box-shadow: 0 0 20px rgba(255, 214, 10, 0.1); }
-        .btn-black:disabled { opacity: 0.5; cursor: not-allowed; border-color: #333; color: #666; box-shadow: none; }
+        .toast-active { top: 20px; }
+        .toast-icon { 
+            width: 24px; height: 24px; border-radius: 50%; 
+            background: rgba(255,255,255,0.1); display: flex; 
+            align-items: center; justify-content: center; font-size: 0.8rem; 
+        }
 
         /* --- HUD --- */
         .hud {
             position: fixed; top: 24px; right: 24px; z-index: 1000;
-            background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(24px);
-            padding: 10px 20px; border-radius: 99px; border: 1px solid var(--border);
-            display: flex; gap: 16px; align-items: center; font-size: 0.8rem; font-weight: 500;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            background: rgba(10, 10, 10, 0.8); backdrop-filter: blur(10px);
+            padding: 8px 14px; border-radius: 99px; border: 1px solid var(--border);
+            display: flex; gap: 8px; align-items: center; font-size: 0.75rem; font-weight: 600;
+            transition: opacity 0.3s;
         }
-        .hud-value { color: var(--accent-yellow); font-family: "SF Mono", monospace; font-size: 0.9rem; }
+        .hud-value { color: var(--accent-yellow); font-family: "SF Mono", monospace; }
 
-        /* --- SNAKE TIMELINE --- */
-        .snake-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; }
-        #snakePath { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 1; }
-        #snakePathActive {
-            fill: none; stroke: var(--accent-yellow); stroke-width: 2;
-            stroke-dasharray: 1; stroke-dashoffset: 1;
-            filter: drop-shadow(0 0 8px rgba(255, 214, 10, 0.4));
-            transition: stroke-dashoffset 0.1s linear;
+        /* --- UI COMPONENTS --- */
+        .btn-primary {
+            background: var(--text-main); color: #000;
+            border: none; padding: 14px 28px; border-radius: 99px;
+            font-size: 1rem; font-weight: 600; cursor: pointer;
+            transition: transform 0.2s var(--ease-apple), opacity 0.2s, background 0.3s;
+            width: auto; min-width: 200px;
+            box-shadow: 0 4px 20px rgba(255,255,255,0.15);
         }
+        .btn-primary:active { transform: scale(0.96); }
+        .btn-primary:disabled { background: #222; color: #555; cursor: not-allowed; box-shadow: none; transform: none; }
 
-        /* --- SECTIONS --- */
+        .btn-glass {
+            background: rgba(255,255,255,0.05); color: #fff;
+            border: 1px solid var(--border); padding: 12px 20px; border-radius: 12px;
+            font-size: 0.9rem; cursor: pointer; transition: 0.2s;
+            width: 100%;
+        }
+        .btn-glass:active { background: rgba(255,255,255,0.1); }
+
         section {
             min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
-            position: relative; padding: 100px 20px; transition: opacity 0.8s, filter 0.8s;
+            position: relative; padding: 80px 20px; transition: 0.8s var(--ease-apple);
         }
-        section.locked { filter: grayscale(1) opacity(0.2) blur(4px); pointer-events: none; user-select: none; }
-        
-        .lock-badge {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            z-index: 10; display: none; flex-direction: column; align-items: center; gap: 10px;
-        }
-        section.locked .lock-badge { display: flex; filter: none; opacity: 1; }
-        .lock-text {
-            background: #111; border: 1px solid var(--accent-silver); color: var(--accent-silver);
-            padding: 6px 16px; border-radius: 6px; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 2px;
+        section.locked { opacity: 0.2; filter: blur(8px) grayscale(1); pointer-events: none; }
+
+        h1 { font-size: 2.5rem; font-weight: 800; text-align: center; letter-spacing: -0.03em; margin-bottom: 15px; line-height: 1.1; background: linear-gradient(180deg, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        h2 { font-size: 1.1rem; margin-bottom: 15px; color: var(--accent-yellow); letter-spacing: 1px; font-weight: 600; text-transform: uppercase; text-align: center; }
+        p { max-width: 500px; text-align: center; color: var(--text-muted); margin-bottom: 30px; font-size: 1rem; line-height: 1.5; }
+
+        /* --- PHASE 1: SCANNER --- */
+        .scanner-container { position: relative; width: 240px; height: 240px; display: flex; align-items: center; justify-content: center; margin: 20px 0; }
+        .circle-svg { transform: rotate(-90deg); width: 100%; height: 100%; }
+        .circle-bg { fill: none; stroke: #222; stroke-width: 6; }
+        .circle-progress { 
+            fill: none; stroke: var(--accent-yellow); stroke-width: 6; 
+            stroke-dasharray: 700; stroke-dashoffset: 700; /* Adjusted for smaller circle */
+            transition: stroke-dashoffset 0.1s linear; stroke-linecap: round;
+            filter: drop-shadow(0 0 15px rgba(255, 214, 10, 0.3));
         }
 
-        h1 { font-size: 3.5rem; font-weight: 700; text-align: center; letter-spacing: -0.02em; margin-bottom: 10px; line-height: 1; }
-        h2 { font-size: 1.2rem; margin-bottom: 20px; color: var(--accent-yellow); text-transform: uppercase; letter-spacing: 4px; font-weight: 600; text-align: center; }
-        p { max-width: 500px; text-align: center; color: var(--text-muted); margin-bottom: 50px; font-size: 1rem; line-height: 1.6; }
-
-        /* --- PHASE 1: ANALYSIS & EXPOSURE --- */
-        .core-interface { position: relative; width: 300px; height: 300px; display: flex; align-items: center; justify-content: center; }
-        #p1-target { position: absolute; width:1px; height:1px; } 
-
-        .hold-btn {
-            width: 200px; height: 200px; border-radius: 50%;
-            background: radial-gradient(circle at 30% 30%, #1a1a1a, #000);
-            border: 1px solid rgba(255,255,255,0.1);
+        .scanner-btn {
+            position: absolute; width: 190px; height: 190px; border-radius: 50%;
+            background: radial-gradient(circle at 50% 50%, #1a1a1a, #000);
+            border: 1px solid rgba(255,255,255,0.15); cursor: pointer;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; position: relative; overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            transition: transform 0.2s var(--ease-apple);
+            transition: transform 0.2s; z-index: 10;
         }
-        .hold-btn:active { transform: scale(0.96); border-color: var(--accent-yellow); }
-        .hold-progress-fill { position: absolute; bottom: 0; left: 0; width: 100%; height: 0%; background: rgba(255, 214, 10, 0.1); transition: height 0.05s linear; }
+        .scanner-btn:active { transform: scale(0.92); border-color: var(--accent-yellow); }
 
-        /* Creator Analysis Dashboard */
-        .analysis-dashboard {
-            display: none; grid-template-columns: repeat(2, 1fr); gap: 15px;
-            width: 100%; max-width: 600px; margin-top: 30px;
-            animation: fadeIn 1s;
+        .analysis-grid {
+            display: grid; grid-template-columns: 1fr; gap: 10px; margin-top: 30px;
+            width: 100%; max-width: 400px; opacity: 0; transform: translateY(20px);
         }
-        .stat-card {
-            background: #0A0A0A; border: 1px solid #222; padding: 15px; border-radius: 12px;
-            display: flex; flex-direction: column; gap: 5px; opacity: 0;
-            animation: slideUp 0.5s forwards;
+        .analysis-card {
+            background: #111; border: 1px solid #222; padding: 15px; border-radius: 12px;
+            display: flex; justify-content: space-between; align-items: center;
+            opacity: 0; transform: translateY(10px);
         }
-        .stat-label { font-size: 0.7rem; color: #666; text-transform: uppercase; }
-        .stat-value { font-size: 1.1rem; color: #fff; font-family: monospace; }
-        .progress-mini { width: 100%; height: 4px; background: #222; margin-top: 5px; border-radius: 2px; }
-        .progress-mini-fill { height: 100%; background: var(--accent-blue); width: 0%; transition: width 1s; }
+        .analysis-card.show { animation: slideUpFade 0.5s forwards ease-out; }
+        .data-big { font-size: 1.1rem; font-weight: 700; color: #fff; }
+        .data-label { font-size: 0.7rem; color: #666; text-transform: uppercase; }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* --- PHASE 2: COMMUNITY & CHAT --- */
-        .market-grid {
-            display: grid; grid-template-columns: 260px 1fr; gap: 30px;
-            width: 100%; max-width: 1000px;
+        /* --- PHASE 2: DASHBOARD (Mobile Optimized) --- */
+        .dashboard-container {
+            display: flex; flex-direction: column; gap: 20px;
+            width: 100%; max-width: 600px;
         }
 
-        .channel-list { display: flex; flex-direction: column; gap: 10px; }
-        .channel-btn {
-            padding: 15px; background: #0A0A0A; border: 1px solid var(--border); border-radius: 12px;
-            color: #888; text-align: left; cursor: pointer; transition: 0.2s; display: flex; justify-content: space-between;
+        .media-preview {
+            width: 100%; aspect-ratio: 16/9; background: #080808; border-radius: 16px; border: 1px solid var(--border);
+            position: relative; overflow: hidden; margin-bottom: 10px;
         }
-        .channel-btn:hover, .channel-btn.active { border-color: var(--accent-yellow); color: #fff; background: rgba(255,255,255,0.02); }
-        .channel-tag { width: 8px; height: 8px; border-radius: 50%; background: #333; }
-        .channel-btn.active .channel-tag { background: var(--accent-green); box-shadow: 0 0 5px var(--accent-green); }
+        .media-preview img { width: 100%; height: 100%; object-fit: cover; }
 
-        .chat-terminal {
-            background: #050505; border: 1px solid var(--border); border-radius: 20px;
-            height: 500px; display: flex; flex-direction: column; position: relative; overflow: hidden;
+        .creators-box {
+            background: var(--bg-card); padding: 15px; border-radius: 16px; border: 1px solid var(--border);
+            display: flex; flex-direction: column; gap: 12px;
         }
-        #p2-target { position: absolute; top:50%; left:50%; width:1px; height:1px; }
+        .creator-row { display: flex; align-items: center; gap: 12px; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: #333; }
 
-        .chat-tabs {
-            display: flex; border-bottom: 1px solid #222;
+        .vote-section {
+            background: var(--bg-card); padding: 15px; border-radius: 16px; border: 1px solid var(--border);
         }
-        .chat-tab {
-            flex: 1; padding: 15px; text-align: center; font-size: 0.8rem; cursor: pointer; color: #666;
-            border-bottom: 2px solid transparent;
+        .vote-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .chat-tab.active { color: #fff; border-bottom-color: var(--accent-yellow); }
-
-        .chat-feed { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-        .chat-input-box { padding: 20px; border-top: 1px solid #222; display: flex; gap: 10px; }
-        .input-field { flex: 1; background: #111; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; outline: none; }
-        .chat-msg { font-size: 0.9rem; line-height: 1.4; animation: fadeUp 0.3s; }
-        .chat-user { font-weight: 700; margin-right: 8px; }
-
-        /* --- PHASE 3: FINANCE ALERT --- */
-        .finance-wrapper { width: 100%; max-width: 600px; }
-        #p3-target { position: absolute; top:50%; left:50%; width:1px; height:1px; }
-
-        .alert-box {
-            background: rgba(255, 69, 58, 0.1); border: 1px solid var(--accent-red);
-            padding: 20px; border-radius: 12px; margin-bottom: 30px; text-align: center;
-            animation: pulse-red 2s infinite;
-        }
-        .funding-progress-container {
-            width: 100%; height: 10px; background: #222; border-radius: 5px; margin: 30px 0; overflow: hidden;
-        }
-        .funding-bar {
-            height: 100%; background: linear-gradient(90deg, var(--accent-yellow), var(--accent-green));
-            width: 85%; transition: width 1s ease-out; position: relative;
-        }
-        .funding-stats { display: flex; justify-content: space-between; font-family: monospace; font-size: 0.9rem; color: #888; }
-
-        .invest-controls {
-            background: #111; padding: 30px; border-radius: 16px; border: 1px solid #333; text-align: center;
+        .vote-item span { font-size: 0.9rem; }
+        .btn-vote { 
+            font-size: 0.75rem; padding: 6px 12px; border-radius: 8px; 
+            background: #222; color: #fff; border: none; font-weight: 600;
         }
 
-        /* --- PHASE 4: GREENLIGHT --- */
-        .certificate-container {
-            border: 1px solid var(--border); background: #080808; padding: 60px;
-            max-width: 700px; width: 100%; text-align: center; position: relative; border-radius: 4px;
+        .chat-interface {
+            background: #000; border: 1px solid var(--border); border-radius: 20px;
+            display: flex; flex-direction: column; height: 450px; position: relative; overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-        #p4-target { position: absolute; top:50%; left:50%; width:1px; height:1px; }
+        .chat-header {
+            padding: 12px 15px; border-bottom: 1px solid #222; background: rgba(20,20,20,0.9);
+            display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem;
+        }
+        .chat-feed {
+            flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
+        }
+        .msg { font-size: 0.85rem; padding: 8px 12px; border-radius: 12px; max-width: 85%; animation: fadeUp 0.3s forwards; }
+        .msg.system { align-self: center; background: transparent; color: #666; border: 1px solid #222; font-size: 0.75rem; }
+        .msg.creator { align-self: flex-start; background: rgba(255, 214, 10, 0.15); color: var(--accent-yellow); border-bottom-left-radius: 2px; }
+        .msg.user { align-self: flex-end; background: #333; color: white; border-bottom-right-radius: 2px; }
+        .msg.public { align-self: flex-start; background: #111; color: #aaa; }
 
-        .stamp-seal {
-            margin: 0 auto 30px; width: 100px; height: 100px; border-radius: 50%;
-            border: 4px double var(--accent-green); color: var(--accent-green);
-            display: flex; align-items: center; justify-content: center;
+        .chat-input-area {
+            padding: 10px; background: #111; display: flex; gap: 8px;
+            transition: 0.3s; opacity: 0.5; pointer-events: none;
+        }
+        .chat-input-area.active { opacity: 1; pointer-events: auto; }
+        .chat-input {
+            flex: 1; background: #222; border: none; padding: 12px; color: white; border-radius: 99px; font-size: 0.9rem;
         }
 
-        .email-capture {
-            margin-top: 30px; display: flex; gap: 10px; max-width: 400px; margin-left: auto; margin-right: auto;
+        /* --- PHASE 3: FINANCE --- */
+        .finance-card {
+            width: 100%; max-width: 500px; padding: 30px 20px;
+            background: #111; border-radius: 24px; border: 1px solid var(--border); text-align: center;
         }
 
-        /* ANIMATIONS */
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } }
-        @keyframes pulse-red { 0% { box-shadow: 0 0 0 rgba(255, 69, 58, 0); } 50% { box-shadow: 0 0 15px rgba(255, 69, 58, 0.2); } }
+        /* MEDIA QUERIES FOR DESKTOP */
+        @media (min-width: 768px) {
+            h1 { font-size: 4rem; }
+            .dashboard-container { display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px; max-width: 1100px; height: 600px; }
+            .analysis-grid { grid-template-columns: repeat(3, 1fr); max-width: 800px; gap: 20px; }
+            .analysis-card { flex-direction: column; text-align: center; gap: 5px; }
+            .scanner-container { width: 280px; height: 280px; }
+            .scanner-btn { width: 220px; height: 220px; }
+            .circle-svg { width: 280px; height: 280px; }
+            .chat-interface { height: 100%; }
+        }
+
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <!-- HUD -->
-    <div class="hud">
-        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12z"/><path d="M12 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg>
-        <span class="hud-value" id="hudTokens">5,000 QT</span>
+    <!-- NOTIFICATION -->
+    <div class="toast-notification" id="toast">
+        <div class="toast-icon" id="toastIcon">★</div>
+        <div>
+            <div style="font-weight:600; font-size:0.9rem; color:#fff;" id="toastTitle">System Ready</div>
+            <div style="font-size:0.75rem; color:#aaa;" id="toastMsg">Welcome to Qantica OS</div>
+        </div>
     </div>
 
-    <!-- SNAKE LINE -->
-    <svg class="snake-container">
-        <path id="snakePath" />
-        <path id="snakePathActive" />
-    </svg>
+    <!-- HUD -->
+    <div class="hud" id="mainHud" style="opacity:0;">
+        <span style="color:#666">TOKENS</span>
+        <span class="hud-value" id="tokenDisplay">0 QT</span>
+    </div>
 
     <!-- 0. INTRO -->
-    <section id="sec-intro">
-        <div style="color: var(--accent-yellow); font-size: 0.75rem; letter-spacing: 3px; margin-bottom: 20px; text-transform: uppercase;">Qantica Studio Ecosystem</div>
-        <h1>PRODUCTION<br>PIPELINE</h1>
-        <p>Inicia el proceso. Analiza el mercado, activa la comunidad y cierra la ronda de inversión para desbloquear el Greenlight.</p>
-        
-        <button class="btn-black" onclick="document.getElementById('sec-transform').scrollIntoView({behavior:'smooth'})">
-            Iniciar Proceso
-        </button>
-        <div id="p0-target" style="position:absolute; top:80%; left:50%;"></div>
+    <section id="p0">
+        <div style="opacity:0.6; font-size:0.8rem; letter-spacing:4px; margin-bottom:20px; text-transform:uppercase;">Qantica Studio</div>
+        <h1>ECOSYSTEM<br>MOBILE OS</h1>
+        <p>Gestiona, Interactúa e Invierte.<br>Tu carrera de Productor comienza aquí.</p>
+        <button class="btn-primary" onclick="initSystem()">Iniciar Sistema</button>
     </section>
 
-    <!-- 1. ANALYSIS & EXPOSURE -->
-    <section id="sec-transform">
-        <h2>Fase 01: Análisis y Exposición</h2>
-        <p>Genera el activo de <strong>BadNight</strong>. El sistema analizará demografía y mercado antes de la exposición pública.</p>
-        
-        <div class="core-interface">
-            <div id="p1-target"></div>
-            
-            <div class="hold-btn" id="holdBtn" 
-                 onmousedown="startHold()" onmouseup="endHold()" onmouseleave="endHold()" 
-                 ontouchstart="startHold()" ontouchend="endHold()">
-                
-                <div class="hold-progress-fill" id="holdFill"></div>
-                <svg id="icon-main" class="icon-xl" style="color: white; z-index: 2;" viewBox="0 0 24 24">
-                    <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
-                </svg>
-                <div id="hold-text" style="margin-top: 15px; font-size: 0.7rem; color: #888; letter-spacing: 2px; text-transform: uppercase; z-index: 2;">
-                    Hold to Analyze
-                </div>
+    <!-- 1. ANALYSIS -->
+    <section id="p1" class="locked">
+        <h2>FASE 01: SCANNER</h2>
+        <p>Mantén presionado para analizar el activo "BadNight".</p>
+
+        <div class="scanner-container">
+            <svg class="circle-svg" viewBox="0 0 280 280">
+                <circle class="circle-bg" cx="140" cy="140" r="110"></circle>
+                <circle class="circle-progress" id="scanRing" cx="140" cy="140" r="110"></circle>
+            </svg>
+            <div class="scanner-btn" id="holdBtn" 
+                 onmousedown="startScan()" onmouseup="stopScan()" onmouseleave="stopScan()"
+                 ontouchstart="startScan()" ontouchend="stopScan()">
+                <div style="font-size:2rem; margin-bottom:5px;">🔍</div>
+                <div class="scanner-text" id="scanText" style="font-size:0.7rem; letter-spacing:1px; color:#666;">HOLD</div>
             </div>
         </div>
 
-        <!-- Hidden Analysis Dashboard -->
-        <div class="analysis-dashboard" id="analysisDash">
-            <div class="stat-card" style="animation-delay: 0.1s">
-                <span class="stat-label">Segmentación</span>
-                <span class="stat-value">Young Adult (18-35)</span>
-                <div class="progress-mini"><div class="progress-mini-fill" style="width:85%"></div></div>
+        <div class="analysis-grid" id="analysisResult">
+            <div class="analysis-card" style="animation-delay: 0.1s">
+                <span class="data-label">Activo</span>
+                <span class="data-big" style="color:var(--accent-yellow)">BadNight</span>
             </div>
-            <div class="stat-card" style="animation-delay: 0.2s">
-                <span class="stat-label">Mercado</span>
-                <span class="stat-value">LatAm / Europe</span>
-                <div class="progress-mini"><div class="progress-mini-fill" style="width:70%"></div></div>
+            <div class="analysis-card" style="animation-delay: 0.2s">
+                <span class="data-label">Target</span>
+                <span class="data-big">Gen Z</span>
             </div>
-            <div class="stat-card" style="animation-delay: 0.3s">
-                <span class="stat-label">Engagement Social</span>
-                <span class="stat-value">High Potential</span>
-                <div class="progress-mini"><div class="progress-mini-fill" style="width:92%"></div></div>
-            </div>
-            <div class="stat-card" style="animation-delay: 0.4s">
-                <span class="stat-label">Espacios Digitales</span>
-                <span class="stat-value" style="color:var(--accent-green)">ACTIVATED</span>
+            <div class="analysis-card" style="animation-delay: 0.3s">
+                <span class="data-label">Status</span>
+                <span class="data-big" style="color:var(--accent-green)">Validado</span>
             </div>
         </div>
     </section>
 
-    <!-- 2. COMMUNITY & CHAT -->
-    <section id="sec-social" class="locked">
-        <div class="lock-badge"><div class="lock-text">Requiere Análisis</div></div>
+    <!-- 2. COMMUNITY (CHAT) -->
+    <section id="p2" class="locked">
+        <h2>FASE 02: NETWORKING</h2>
+        <p>1. Vota un proyecto.<br>2. Conecta con los creadores.<br>3. Participa en el chat.</p>
 
-        <h2>Fase 02: Comunidad & Networking</h2>
-        <p>Interactúa en los canales de proyectos. Los colores indican usuarios verificados.</p>
+        <div class="dashboard-container">
+            <!-- Left: Info & Vote -->
+            <div class="project-col">
+                <div class="media-preview">
+                    <!-- Placeholder using gradient/text -->
+                    <div style="width:100%; height:100%; background:linear-gradient(135deg, #111, #222); display:flex; align-items:center; justify-content:center; flex-direction:column;">
+                         <h2 style="font-size:2rem; margin:0; color:white;">BADNIGHT</h2>
+                         <span style="font-size:0.8rem; letter-spacing:2px; color:#666;">OFFICIAL TEASER</span>
+                    </div>
+                </div>
 
-        <div class="market-grid">
-            <div class="channel-list">
-                <div class="channel-btn active" onclick="switchChannel('badnight')">
-                    <div>#BadNight</div>
-                    <div class="channel-tag"></div>
+                <div class="vote-section">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:0.75rem; color:#888;">
+                        <span>TAREA: VOTA PARA DESBLOQUEAR</span>
+                        <span id="votesLeft" style="color:var(--accent-yellow)">3 Votos</span>
+                    </div>
+                    <div class="vote-item">
+                        <span>Punto de Quiebre</span>
+                        <button class="btn-vote" onclick="vote(this)">VOTAR</button>
+                    </div>
+                    <div class="vote-item">
+                        <span>Tempo (Próx)</span>
+                        <button class="btn-vote" onclick="vote(this)">VOTAR</button>
+                    </div>
+                    <div class="vote-item">
+                        <span>Frágil</span>
+                        <button class="btn-vote" onclick="vote(this)">VOTAR</button>
+                    </div>
                 </div>
-                <div class="channel-btn" onclick="switchChannel('fragil')">
-                    <div>#Frágil</div>
-                    <div class="channel-tag"></div>
-                </div>
-                <div class="channel-btn" onclick="switchChannel('quiebre')">
-                    <div>#PuntoDeQuiebre</div>
-                    <div class="channel-tag"></div>
-                </div>
-                <div style="height:1px; background:#222; margin:10px 0;"></div>
-                <div class="channel-btn" onclick="switchChannel('private')">
-                    <div>Mensajes Privados</div>
-                    <div style="font-size:0.8rem; color:#666;">3 New</div>
+
+                <div class="creators-box">
+                    <div class="creator-row">
+                        <div class="avatar" style="background: #444; display:flex; align-items:center; justify-content:center;">D</div>
+                        <div class="creator-info">
+                            <h4 style="margin:0; font-size:0.9rem;">Dani & Luciano</h4>
+                            <span style="font-size:0.7rem; color:#666;">Creadores</span>
+                        </div>
+                    </div>
+                    <button id="btnConnect" class="btn-primary" style="width:100%; font-size:0.9rem; padding:10px;" onclick="connectCreators()" disabled>
+                        🔒 Vota primero para conectar
+                    </button>
                 </div>
             </div>
 
-            <div class="chat-terminal">
-                <div id="p2-target"></div>
-                
-                <div class="chat-tabs">
-                    <div class="chat-tab active">Chat Público</div>
-                    <div class="chat-tab">Anuncios</div>
+            <!-- Right: Chat -->
+            <div class="chat-interface">
+                <div class="chat-header">
+                    <span>#BadNight</span>
+                    <span style="color:var(--accent-red); font-size:0.7rem;">● LIVE</span>
                 </div>
-
+                
                 <div class="chat-feed" id="chatFeed">
-                    <!-- Messages -->
+                    <div class="msg system">Sala restringida. Conecta para entrar.</div>
                 </div>
-                <div class="chat-input-box">
-                    <input type="text" class="input-field" id="userMsg" placeholder="Escribe en #BadNight..." onkeypress="handleEnter(event)">
-                    <button class="btn-black" style="padding: 10px 20px;" onclick="sendUserMsg()">SEND</button>
+
+                <div class="chat-input-area" id="chatInputArea">
+                    <input type="text" id="chatInput" class="chat-input" placeholder="Pregunta algo..." onkeypress="handleChat(event)">
+                    <button style="background:var(--accent-blue); color:white; border:none; width:36px; height:36px; border-radius:50%; cursor:pointer;" onclick="sendChat()">↑</button>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 3. FINANCE ALERT & GAP FUNDING -->
-    <section id="sec-finance" class="locked">
-        <div class="lock-badge"><div class="lock-text">Requiere Validación</div></div>
-
-        <h2>Fase 03: Cierre de Ronda</h2>
-        <p>Tu proyecto ha alcanzado una tracción crítica. Usa tus tokens para completar el último tramo de financiación.</p>
-
-        <div class="finance-wrapper">
-            <div id="p3-target"></div>
-
-            <div class="alert-box">
-                <strong style="color:var(--accent-red); display:block; margin-bottom:5px;">⚠️ OPORTUNIDAD DE CIERRE</strong>
-                El proyecto está financiado al 85%. ¡Invierte tú también para asegurar el Greenlight!
-            </div>
-
-            <div class="funding-progress-container">
-                <div class="funding-bar" id="fundBar"></div>
-            </div>
-            <div class="funding-stats">
-                <span>RECAUDADO: 85,000 QT</span>
-                <span>META: 100,000 QT</span>
-            </div>
-
-            <div class="invest-controls" style="margin-top:30px;">
-                <div style="margin-bottom:20px; font-size:1.2rem;">Tu Aportación: <span style="color:var(--accent-yellow)">15,000 QT</span></div>
-                <button class="btn-black" style="width:100%; justify-content:center;" onclick="completeFunding()">
-                    INVERTIR Y CERRAR RONDA
-                </button>
-            </div>
-        </div>
-    </section>
-
-    <!-- 4. GREENLIGHT & SUBSCRIBE -->
-    <section id="sec-success" class="locked">
-        <div class="lock-badge"><div class="lock-text">Esperando Cierre</div></div>
-
-        <div class="certificate-container">
-            <div id="p4-target"></div>
-            
-            <div class="stamp-seal">
-                <svg class="icon-lg" viewBox="0 0 24 24"><path fill="currentColor" d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+    <!-- 3. FINANCE -->
+    <section id="p3" class="locked">
+        <div class="finance-card">
+            <h2 style="color:var(--accent-green)">RONDA FINAL</h2>
+            <div style="margin:20px 0;">
+                <div style="font-size:3rem; font-weight:800; color:#fff;" id="fundDisplay">5,000</div>
+                <div style="color:#666; font-size:0.8rem; letter-spacing:2px;">TOKENS NECESARIOS</div>
             </div>
             
-            <h1 style="color: var(--accent-green); font-size: 3rem;">GREENLIGHT</h1>
-            <p style="margin-bottom: 20px;">PRODUCCIÓN AUTORIZADA</p>
+            <p style="font-size:0.9rem; margin-bottom:20px;">Tu inversión es el último paso para el Greenlight.</p>
 
-            <div style="color: #ccc; font-family: monospace; border-top: 1px solid #333; padding-top: 20px; margin-top: 20px;">
-                PROJECT: BADNIGHT<br>
-                STATUS: 100% FUNDED<br>
-                NEXT STEP: PRE-PRODUCTION
-            </div>
-
-            <div class="email-capture" id="emailForm">
-                <input type="email" placeholder="tu@email.com" class="input-field" id="notifyEmail">
-                <button class="btn-black" onclick="subscribeEmail()">Notificarme</button>
-            </div>
-            <div id="emailSuccess" style="display:none; color:var(--accent-green); margin-top:20px;">
-                ✓ Suscripción confirmada. Te avisaremos el primer día de rodaje.
-            </div>
+            <button class="btn-primary" id="investBtn" style="background:var(--accent-yellow); width:100%; color:black;" onclick="processInvestment()">
+                INVERTIR AHORA
+            </button>
         </div>
     </section>
 
+    <!-- 4. GREENLIGHT -->
+    <section id="p4" class="locked">
+        <div style="text-align:center;">
+            <div style="font-size:4rem; margin-bottom:20px;">🎬</div>
+            <h1 style="color:var(--accent-green); font-size:2.5rem;">GREENLIGHT</h1>
+            <p>Has completado el ciclo.</p>
+            <div style="padding:15px; background:rgba(255,255,255,0.05); border-radius:12px; margin-top:20px; font-family:monospace; font-size:0.8rem;">
+                CERTIFICATE ID: #QT-8821<br>
+                ROLE: EXEC PRODUCER
+            </div>
+        </div>
+    </section>
 
     <script>
-        // --- SNAKE LOGIC ---
-        function updateSnake() {
-            const targets = ['p0', 'p1', 'p2', 'p3', 'p4'].map(id => {
-                const el = document.getElementById(id + '-target');
-                if(!el) return {x:0, y:0};
-                const rect = el.getBoundingClientRect();
-                return { x: rect.left + rect.width/2, y: rect.top + window.scrollY };
-            });
+        // --- LOGIC ---
+        let phase = 0;
+        let tokens = 0;
+        let votes = 3;
+        let hasVoted = false;
 
-            let d = `M ${targets[0].x} ${targets[0].y}`;
-            for(let i=0; i<targets.length-1; i++){
-                const curr = targets[i];
-                const next = targets[i+1];
-                const midY = (curr.y + next.y) / 2;
-                d += ` C ${curr.x} ${midY}, ${next.x} ${midY}, ${next.x} ${next.y}`;
-            }
-
-            const path = document.getElementById('snakePath');
-            const pathActive = document.getElementById('snakePathActive');
-            
-            path.setAttribute('d', d);
-            pathActive.setAttribute('d', d);
-
-            const len = path.getTotalLength();
-            pathActive.style.strokeDasharray = len;
-            
-            const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-            const progress = Math.min(Math.max(window.scrollY / maxScroll, 0), 1);
-            
-            pathActive.style.strokeDashoffset = len - (progress * len);
+        function vibrate() {
+            if(navigator.vibrate) navigator.vibrate(50);
         }
 
-        window.addEventListener('scroll', updateSnake);
-        window.addEventListener('resize', updateSnake);
-        setTimeout(updateSnake, 100);
+        function showToast(title, msg, icon="★") {
+            const t = document.getElementById('toast');
+            document.getElementById('toastIcon').innerText = icon;
+            document.getElementById('toastTitle').innerText = title;
+            document.getElementById('toastMsg').innerText = msg;
+            
+            t.classList.add('toast-active');
+            vibrate();
+            setTimeout(() => t.classList.remove('toast-active'), 3500);
+        }
 
-        // --- PHASE 1: ANALYSIS ---
-        let holdTimer;
-        let holdVal = 0;
-        const holdFill = document.getElementById('holdFill');
-        const holdText = document.getElementById('hold-text');
-        const dash = document.getElementById('analysisDash');
-        let phase = 1;
+        function scrollToSection(id) {
+            document.getElementById(id).scrollIntoView({behavior:'smooth', block:'center'});
+        }
 
-        function startHold() {
-            if(phase > 1) return;
-            holdTimer = setInterval(() => {
-                holdVal += 2;
-                holdFill.style.height = holdVal + '%';
-                if(holdVal >= 100) {
-                    clearInterval(holdTimer);
-                    runAnalysis();
+        // --- PHASE 0 ---
+        function initSystem() {
+            animateTokens(5000);
+            showToast("Wallet Synced", "5,000 QT Added to your account", "💳");
+            document.getElementById('mainHud').style.opacity = 1;
+            
+            setTimeout(() => {
+                document.getElementById('p1').classList.remove('locked');
+                scrollToSection('p1');
+            }, 1500);
+        }
+
+        function animateTokens(target) {
+            let current = tokens;
+            const el = document.getElementById('tokenDisplay');
+            const step = Math.ceil((target - current) / 20);
+            
+            const interval = setInterval(() => {
+                current += step;
+                if((step > 0 && current >= target) || (step < 0 && current <= target)) {
+                    current = target;
+                    clearInterval(interval);
                 }
-            }, 30);
+                el.innerText = current.toLocaleString() + ' QT';
+            }, 50);
+            tokens = target;
         }
 
-        function endHold() {
-            if(phase > 1) return;
-            clearInterval(holdTimer);
-            holdVal = 0;
-            holdFill.style.height = '0%';
+        // --- PHASE 1: SCAN ---
+        let scanTimer;
+        let progress = 0;
+        const ring = document.getElementById('scanRing');
+        const circumference = 700; // approx 2*PI*110
+
+        function startScan() {
+            if(phase > 0) return;
+            document.getElementById('scanText').innerText = "SCANNING...";
+            document.getElementById('holdBtn').style.transform = "scale(0.9)";
+            vibrate();
+
+            scanTimer = setInterval(() => {
+                progress += 2;
+                const offset = circumference - (progress / 100) * circumference;
+                ring.style.strokeDashoffset = offset;
+
+                if(progress >= 100) {
+                    completeScan();
+                }
+            }, 20);
         }
 
-        function runAnalysis() {
-            phase = 2;
-            holdText.innerText = "ANALYZING DATA...";
-            holdText.style.color = "var(--accent-blue)";
-            holdFill.style.background = "var(--accent-blue)";
+        function stopScan() {
+            if(phase > 0) return;
+            clearInterval(scanTimer);
+            progress = 0;
+            ring.style.strokeDashoffset = circumference;
+            document.getElementById('scanText').innerText = "HOLD";
+            document.getElementById('holdBtn').style.transform = "scale(1)";
+        }
+
+        function completeScan() {
+            clearInterval(scanTimer);
+            phase = 1;
+            vibrate();
+            document.getElementById('scanText').innerText = "DONE";
+            document.getElementById('holdBtn').style.borderColor = "var(--accent-green)";
+            ring.style.stroke = "var(--accent-green)";
             
-            // Show Dashboard
+            showToast("Análisis Completado", "Datos demográficos procesados", "📊");
+
+            const cards = document.querySelectorAll('.analysis-card');
+            cards.forEach(c => c.classList.add('show'));
+
             setTimeout(() => {
-                dash.style.display = 'grid';
-            }, 500);
+                document.getElementById('p2').classList.remove('locked');
+                scrollToSection('p2');
+            }, 3000);
+        }
 
-            // Unlock next phase after reading analysis
+        // --- PHASE 2: INTERACTION ---
+        function vote(btn) {
+            if(votes > 0) {
+                votes--;
+                document.getElementById('votesLeft').innerText = `${votes} Votos`;
+                btn.innerText = "VOTADO";
+                btn.style.background = "#333";
+                btn.style.color = "#666";
+                btn.disabled = true;
+                vibrate();
+
+                if(!hasVoted) {
+                    hasVoted = true;
+                    // Unlock Connect Button
+                    const connectBtn = document.getElementById('btnConnect');
+                    connectBtn.disabled = false;
+                    connectBtn.innerHTML = "Conectar con Creadores";
+                    connectBtn.style.background = "var(--text-main)";
+                    
+                    showToast("Tarea Completada", "Ahora puedes conectar con los creadores", "🔓");
+                }
+            }
+        }
+
+        function connectCreators() {
+            if(!hasVoted) return;
+            const btn = document.getElementById('btnConnect');
+            btn.innerHTML = "Conectando...";
+            btn.disabled = true;
+
             setTimeout(() => {
-                unlockSection('sec-social');
-                startBotChat('badnight'); // Start chat logic
-                document.getElementById('sec-social').scrollIntoView({behavior:'smooth'});
-            }, 3500);
+                btn.style.display = 'none';
+                document.getElementById('chatInputArea').classList.add('active');
+                
+                showToast("Canal Seguro", "Estás conectado en directo", "📡");
+                
+                addMsg("SYSTEM", "Conexión establecida.", "system");
+                setTimeout(() => {
+                    addMsg("Dani & Luciano", "¡Hola! Vimos que votaste. Gracias por el apoyo. ¿Preguntas?", "creator");
+                }, 1000);
+            }, 1500);
         }
 
-        // --- PHASE 2: CHAT LOGIC ---
-        const colors = ['#FFD60A', '#32D74B', '#0A84FF', '#FF453A', '#BF5AF2', '#FF9F0A'];
-        
-        const chatData = {
-            'badnight': [
-                {u: 'CineFan99', t: '¿Vieron el desglose de personajes?'},
-                {u: 'Prod_X', t: 'El análisis de mercado se ve sólido.'},
-                {u: 'Investor01', t: 'Voy a entrar en la ronda final.'}
-            ],
-            'fragil': [
-                {u: 'DramaQueen', t: 'Qué historia tan conmovedora.'},
-                {u: 'IndieLover', t: 'Espero que consiga financiación.'}
-            ],
-            'quiebre': [
-                {u: 'ActionMan', t: '¡Pura adrenalina!'},
-            ],
-            'private': [
-                {u: 'QanticaSupport', t: 'Tu perfil ha sido verificado.'},
-                {u: 'Agent_K', t: 'Tenemos una propuesta de distribución.'}
-            ]
-        };
-
-        let currentChannel = 'badnight';
-
-        function switchChannel(channel) {
-            currentChannel = channel;
-            
-            // Update UI buttons
-            document.querySelectorAll('.channel-btn').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            
-            // Clear feed and load new messages
-            const feed = document.getElementById('chatFeed');
-            feed.innerHTML = '';
-            
-            const msgs = chatData[channel] || [];
-            msgs.forEach(m => addMsg(m.u, m.t));
-            
-            // Update placeholder
-            document.getElementById('userMsg').placeholder = `Escribe en #${channel}...`;
-        }
-
-        function addMsg(user, text, isMe = false) {
+        function addMsg(user, text, type) {
             const feed = document.getElementById('chatFeed');
             const div = document.createElement('div');
-            div.className = 'chat-msg';
-            
-            // Assign random color based on username hash simply
-            let color = isMe ? '#fff' : colors[user.length % colors.length];
-            
-            div.innerHTML = `<span class="chat-user" style="color:${color}">${user}:</span> <span style="color:#ccc">${text}</span>`;
+            div.className = `msg ${type}`;
+            div.innerText = type === 'system' ? text : `${user}: ${text}`;
             feed.appendChild(div);
             feed.scrollTop = feed.scrollHeight;
         }
 
-        function startBotChat(channel) {
-            const msgs = chatData[channel];
-            let i = 0;
-            // Load initial messages
-            msgs.forEach(m => addMsg(m.u, m.t));
+        function handleChat(e) { if(e.key === 'Enter') sendChat(); }
+
+        function sendChat() {
+            const inp = document.getElementById('chatInput');
+            if(!inp.value.trim()) return;
             
-            // Simulate live incoming
-            setInterval(() => {
-                if(Math.random() > 0.7 && phase === 2) {
-                    const randomUser = "User_" + Math.floor(Math.random()*1000);
-                    const texts = ["Increíble proyecto", "Hype!", "¿Cuándo cierra la ronda?", "Saludos desde Madrid"];
-                    addMsg(randomUser, texts[Math.floor(Math.random()*texts.length)]);
-                }
-            }, 3000);
-        }
-
-        function handleEnter(e) { if(e.key === 'Enter') sendUserMsg(); }
-
-        function sendUserMsg() {
-            const inp = document.getElementById('userMsg');
-            if(inp.value.trim() === "") return;
-            addMsg("TÚ", inp.value, true);
+            addMsg("TÚ", inp.value, "user");
             inp.value = "";
-            
-            // Interaction here triggers next phase unlock
-            if(phase === 2) {
+            vibrate();
+
+            // Unlock Phase 3
+            if(phase === 1) { // Logic phase check
+                phase = 2;
+                showToast("Oportunidad", "Ronda de inversión disponible", "💰");
                 setTimeout(() => {
-                    unlockSection('sec-finance');
+                    document.getElementById('p3').classList.remove('locked');
+                    scrollToSection('p3');
                 }, 2000);
             }
         }
 
         // --- PHASE 3: FINANCE ---
-        function completeFunding() {
-            const bar = document.getElementById('fundBar');
-            bar.style.width = "100%";
-            bar.style.background = "var(--accent-green)";
+        function processInvestment() {
+            const btn = document.getElementById('investBtn');
+            btn.disabled = true;
+            btn.innerHTML = "PROCESANDO BLOCKCHAIN...";
             
-            // Deduct tokens visual
-            document.getElementById('hudTokens').innerText = "0 QT";
-            
+            // Simulation
             setTimeout(() => {
-                phase = 4;
-                unlockSection('sec-success');
-                document.getElementById('sec-success').scrollIntoView({behavior:'smooth'});
-            }, 1500);
+                animateTokens(0);
+                vibrate();
+                showToast("Transferencia Exitosa", "Tu inversión ha sido registrada", "✅");
+                
+                btn.innerHTML = "COMPLETADO";
+                btn.style.background = "var(--accent-green)";
+                
+                setTimeout(() => {
+                    document.getElementById('p4').classList.remove('locked');
+                    scrollToSection('p4');
+                }, 2000);
+            }, 2000);
         }
 
-        // --- PHASE 4: EMAIL ---
-        function subscribeEmail() {
-            const email = document.getElementById('notifyEmail').value;
-            if(email.includes('@')) {
-                document.getElementById('emailForm').style.display = 'none';
-                document.getElementById('emailSuccess').style.display = 'block';
-            } else {
-                alert("Por favor ingresa un email válido.");
+        // --- Background Chat Simulation ---
+        setInterval(() => {
+            if(phase >= 1 && Math.random() > 0.8) {
+                const msgs = ["Gran proyecto", "¿Cuándo sale?", "Hype!!!", "Vamooos"];
+                addMsg("User" + Math.floor(Math.random()*100), msgs[Math.floor(Math.random()*msgs.length)], "public");
             }
-        }
+        }, 4000);
 
-        // --- UTILS ---
-        function unlockSection(id) {
-            document.getElementById(id).classList.remove('locked');
-        }
     </script>
 </body>
 </html>
