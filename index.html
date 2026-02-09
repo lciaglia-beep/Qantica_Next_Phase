@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Qantica | Pro Ecosystem Mobile</title>
+    <title>Qantica | Pro Ecosystem</title>
     <style>
         :root {
             --bg-core: #000000;
@@ -27,10 +27,10 @@
             font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
-            padding-bottom: 50px; /* Space for mobile scroll */
+            padding-bottom: 50px;
         }
 
-        /* --- NOTIFICATIONS (Dynamic Island Style) --- */
+        /* --- NOTIFICATIONS --- */
         .toast-notification {
             position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
             background: rgba(20, 20, 20, 0.95);
@@ -74,14 +74,6 @@
         .btn-primary:active { transform: scale(0.96); }
         .btn-primary:disabled { background: #222; color: #555; cursor: not-allowed; box-shadow: none; transform: none; }
 
-        .btn-glass {
-            background: rgba(255,255,255,0.05); color: #fff;
-            border: 1px solid var(--border); padding: 12px 20px; border-radius: 12px;
-            font-size: 0.9rem; cursor: pointer; transition: 0.2s;
-            width: 100%;
-        }
-        .btn-glass:active { background: rgba(255,255,255,0.1); }
-
         section {
             min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
             position: relative; padding: 80px 20px; transition: 0.8s var(--ease-apple);
@@ -98,7 +90,7 @@
         .circle-bg { fill: none; stroke: #222; stroke-width: 6; }
         .circle-progress { 
             fill: none; stroke: var(--accent-yellow); stroke-width: 6; 
-            stroke-dasharray: 700; stroke-dashoffset: 700; /* Adjusted for smaller circle */
+            stroke-dasharray: 700; stroke-dashoffset: 700; 
             transition: stroke-dashoffset 0.1s linear; stroke-linecap: round;
             filter: drop-shadow(0 0 15px rgba(255, 214, 10, 0.3));
         }
@@ -125,7 +117,7 @@
         .data-big { font-size: 1.1rem; font-weight: 700; color: #fff; }
         .data-label { font-size: 0.7rem; color: #666; text-transform: uppercase; }
 
-        /* --- PHASE 2: DASHBOARD (Mobile Optimized) --- */
+        /* --- PHASE 2: DASHBOARD --- */
         .dashboard-container {
             display: flex; flex-direction: column; gap: 20px;
             width: 100%; max-width: 600px;
@@ -135,7 +127,17 @@
             width: 100%; aspect-ratio: 16/9; background: #080808; border-radius: 16px; border: 1px solid var(--border);
             position: relative; overflow: hidden; margin-bottom: 10px;
         }
-        .media-preview img { width: 100%; height: 100%; object-fit: cover; }
+        .media-preview img { 
+            width: 100%; height: 100%; object-fit: cover; 
+            filter: blur(15px) grayscale(1); transition: filter 1.5s var(--ease-apple); 
+        }
+        .media-preview.revealed img { filter: blur(0) grayscale(0); }
+        
+        .locked-overlay {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.4); color: white; font-weight: 700; letter-spacing: 2px;
+            z-index: 2; transition: opacity 1s; pointer-events: none;
+        }
 
         .creators-box {
             background: var(--bg-card); padding: 15px; border-radius: 16px; border: 1px solid var(--border);
@@ -151,7 +153,6 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
         }
-        .vote-item span { font-size: 0.9rem; }
         .btn-vote { 
             font-size: 0.75rem; padding: 6px 12px; border-radius: 8px; 
             background: #222; color: #fff; border: none; font-weight: 600;
@@ -184,13 +185,50 @@
             flex: 1; background: #222; border: none; padding: 12px; color: white; border-radius: 99px; font-size: 0.9rem;
         }
 
-        /* --- PHASE 3: FINANCE --- */
+        /* --- PHASE 3: FINANCE (INTERACTIVE) --- */
         .finance-card {
             width: 100%; max-width: 500px; padding: 30px 20px;
             background: #111; border-radius: 24px; border: 1px solid var(--border); text-align: center;
         }
+        .hold-transfer-btn {
+            width: 100%; height: 60px; background: #222; border-radius: 12px;
+            position: relative; overflow: hidden; cursor: pointer; border: 1px solid #333;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; color: #888; letter-spacing: 1px;
+            user-select: none;
+        }
+        .transfer-fill {
+            position: absolute; top: 0; left: 0; height: 100%; width: 0%;
+            background: var(--accent-green); transition: width 0.1s linear;
+            z-index: 1;
+        }
+        .transfer-text { position: relative; z-index: 2; transition: color 0.3s; }
+        .hold-transfer-btn.active .transfer-text { color: #000; }
 
-        /* MEDIA QUERIES FOR DESKTOP */
+        /* --- PHASE 4: GREENLIGHT CERTIFICATE --- */
+        .cert-frame {
+            border: 1px solid var(--accent-green); background: rgba(48, 209, 88, 0.05);
+            padding: 30px; border-radius: 16px; width: 100%; max-width: 500px;
+            text-align: center; position: relative;
+        }
+        .stamp-anim {
+            width: 80px; height: 80px; border: 3px solid var(--accent-green); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            position: absolute; top: -40px; right: -20px; background: #000; color: var(--accent-green);
+            transform: rotate(15deg) scale(2); opacity: 0;
+            font-weight: 900; font-size: 0.8rem; text-transform: uppercase;
+        }
+        .stamp-anim.stamped { animation: stampIn 0.4s forwards var(--ease-apple); }
+        
+        .email-form {
+            display: flex; gap: 8px; margin-top: 20px;
+        }
+
+        @keyframes stampIn { to { transform: rotate(15deg) scale(1); opacity: 1; } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Desktop Adjustments */
         @media (min-width: 768px) {
             h1 { font-size: 4rem; }
             .dashboard-container { display: grid; grid-template-columns: 1fr 1.5fr; gap: 40px; max-width: 1100px; height: 600px; }
@@ -201,9 +239,6 @@
             .circle-svg { width: 280px; height: 280px; }
             .chat-interface { height: 100%; }
         }
-
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes slideUpFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -213,7 +248,7 @@
         <div class="toast-icon" id="toastIcon">★</div>
         <div>
             <div style="font-weight:600; font-size:0.9rem; color:#fff;" id="toastTitle">System Ready</div>
-            <div style="font-size:0.75rem; color:#aaa;" id="toastMsg">Welcome to Qantica OS</div>
+            <div style="font-size:0.75rem; color:#aaa;" id="toastMsg">Qantica OS Initialized</div>
         </div>
     </div>
 
@@ -226,7 +261,7 @@
     <!-- 0. INTRO -->
     <section id="p0">
         <div style="opacity:0.6; font-size:0.8rem; letter-spacing:4px; margin-bottom:20px; text-transform:uppercase;">Qantica Studio</div>
-        <h1>ECOSYSTEM<br>MOBILE OS</h1>
+        <h1>PRODUCTION<br>ECOSYSTEM</h1>
         <p>Gestiona, Interactúa e Invierte.<br>Tu carrera de Productor comienza aquí.</p>
         <button class="btn-primary" onclick="initSystem()">Iniciar Sistema</button>
     </section>
@@ -268,17 +303,15 @@
     <!-- 2. COMMUNITY (CHAT) -->
     <section id="p2" class="locked">
         <h2>FASE 02: NETWORKING</h2>
-        <p>1. Vota un proyecto.<br>2. Conecta con los creadores.<br>3. Participa en el chat.</p>
+        <p>Desbloquea el contenido y conecta con los creadores.</p>
 
         <div class="dashboard-container">
             <!-- Left: Info & Vote -->
             <div class="project-col">
-                <div class="media-preview">
-                    <!-- Placeholder using gradient/text -->
-                    <div style="width:100%; height:100%; background:linear-gradient(135deg, #111, #222); display:flex; align-items:center; justify-content:center; flex-direction:column;">
-                         <h2 style="font-size:2rem; margin:0; color:white;">BADNIGHT</h2>
-                         <span style="font-size:0.8rem; letter-spacing:2px; color:#666;">OFFICIAL TEASER</span>
-                    </div>
+                <div class="media-preview" id="badnightCover">
+                    <div class="locked-overlay" id="coverLock">ENCRIPTADO</div>
+                    <!-- Assuming badnight.png exists or falls back cleanly -->
+                    <img src="badnight.png" alt="Cover" onerror="this.src='https://placehold.co/600x400/000/333?text=BadNight'"> 
                 </div>
 
                 <div class="vote-section">
@@ -342,59 +375,71 @@
                 <div style="color:#666; font-size:0.8rem; letter-spacing:2px;">TOKENS NECESARIOS</div>
             </div>
             
-            <p style="font-size:0.9rem; margin-bottom:20px;">Tu inversión es el último paso para el Greenlight.</p>
+            <p style="font-size:0.9rem; margin-bottom:20px;">Mantén presionado para transferir los fondos.</p>
 
-            <button class="btn-primary" id="investBtn" style="background:var(--accent-yellow); width:100%; color:black;" onclick="processInvestment()">
-                INVERTIR AHORA
-            </button>
+            <div class="hold-transfer-btn" id="transferBtn" 
+                 onmousedown="startTransfer()" onmouseup="stopTransfer()" onmouseleave="stopTransfer()"
+                 ontouchstart="startTransfer()" ontouchend="stopTransfer()">
+                <div class="transfer-fill" id="transferFill"></div>
+                <span class="transfer-text" id="transferText">HOLD TO TRANSFER</span>
+            </div>
         </div>
     </section>
 
     <!-- 4. GREENLIGHT -->
     <section id="p4" class="locked">
-        <div style="text-align:center;">
-            <div style="font-size:4rem; margin-bottom:20px;">🎬</div>
-            <h1 style="color:var(--accent-green); font-size:2.5rem;">GREENLIGHT</h1>
-            <p>Has completado el ciclo.</p>
-            <div style="padding:15px; background:rgba(255,255,255,0.05); border-radius:12px; margin-top:20px; font-family:monospace; font-size:0.8rem;">
-                CERTIFICATE ID: #QT-8821<br>
-                ROLE: EXEC PRODUCER
+        <div class="cert-frame">
+            <div class="stamp-anim" id="greenlightStamp">APPROVED</div>
+            
+            <h1 style="color:var(--accent-green); font-size:2rem; margin-bottom:10px;">GREENLIGHT</h1>
+            <p style="margin-bottom:20px;">Proyecto Autorizado para Producción.</p>
+            
+            <div style="font-family:monospace; font-size:0.8rem; color:#888; margin-bottom:20px; text-align:left;">
+                PROJECT: BADNIGHT<br>
+                STATUS: FUNDED<br>
+                DATE: <span id="currentDate"></span>
+            </div>
+
+            <div id="emailSection">
+                <p style="font-size:0.8rem; margin-bottom:10px;">Firma con tu email para recibir el certificado:</p>
+                <div class="email-form">
+                    <input type="email" id="userEmail" class="chat-input" placeholder="tu@email.com" style="background:#000; border:1px solid #333;">
+                    <button class="btn-primary" style="padding:10px 20px; font-size:0.9rem; min-width:auto;" onclick="submitEmail()">FIRMAR</button>
+                </div>
+            </div>
+            
+            <div id="successMsg" style="display:none; color:var(--accent-green); margin-top:20px;">
+                ✓ Certificado enviado. ¡Bienvenido al equipo!
             </div>
         </div>
     </section>
 
     <script>
-        // --- LOGIC ---
+        // --- GLOBAL STATE ---
         let phase = 0;
         let tokens = 0;
         let votes = 3;
         let hasVoted = false;
-
-        function vibrate() {
-            if(navigator.vibrate) navigator.vibrate(50);
-        }
-
+        
+        // --- UTILS ---
+        function vibrate() { if(navigator.vibrate) navigator.vibrate(50); }
+        function scrollToSection(id) { document.getElementById(id).scrollIntoView({behavior:'smooth', block:'center'}); }
+        
         function showToast(title, msg, icon="★") {
             const t = document.getElementById('toast');
             document.getElementById('toastIcon').innerText = icon;
             document.getElementById('toastTitle').innerText = title;
             document.getElementById('toastMsg').innerText = msg;
-            
             t.classList.add('toast-active');
             vibrate();
             setTimeout(() => t.classList.remove('toast-active'), 3500);
         }
 
-        function scrollToSection(id) {
-            document.getElementById(id).scrollIntoView({behavior:'smooth', block:'center'});
-        }
-
         // --- PHASE 0 ---
         function initSystem() {
             animateTokens(5000);
-            showToast("Wallet Synced", "5,000 QT Added to your account", "💳");
+            showToast("Wallet Synced", "5,000 QT Added", "💳");
             document.getElementById('mainHud').style.opacity = 1;
-            
             setTimeout(() => {
                 document.getElementById('p1').classList.remove('locked');
                 scrollToSection('p1');
@@ -405,7 +450,6 @@
             let current = tokens;
             const el = document.getElementById('tokenDisplay');
             const step = Math.ceil((target - current) / 20);
-            
             const interval = setInterval(() => {
                 current += step;
                 if((step > 0 && current >= target) || (step < 0 && current <= target)) {
@@ -421,22 +465,17 @@
         let scanTimer;
         let progress = 0;
         const ring = document.getElementById('scanRing');
-        const circumference = 700; // approx 2*PI*110
+        const circumference = 700; 
 
         function startScan() {
             if(phase > 0) return;
             document.getElementById('scanText').innerText = "SCANNING...";
             document.getElementById('holdBtn').style.transform = "scale(0.9)";
             vibrate();
-
             scanTimer = setInterval(() => {
                 progress += 2;
-                const offset = circumference - (progress / 100) * circumference;
-                ring.style.strokeDashoffset = offset;
-
-                if(progress >= 100) {
-                    completeScan();
-                }
+                ring.style.strokeDashoffset = circumference - (progress / 100) * circumference;
+                if(progress >= 100) completeScan();
             }, 20);
         }
 
@@ -456,16 +495,12 @@
             document.getElementById('scanText').innerText = "DONE";
             document.getElementById('holdBtn').style.borderColor = "var(--accent-green)";
             ring.style.stroke = "var(--accent-green)";
-            
-            showToast("Análisis Completado", "Datos demográficos procesados", "📊");
-
-            const cards = document.querySelectorAll('.analysis-card');
-            cards.forEach(c => c.classList.add('show'));
-
+            showToast("Análisis Completado", "Activo validado", "📊");
+            document.querySelectorAll('.analysis-card').forEach(c => c.classList.add('show'));
             setTimeout(() => {
                 document.getElementById('p2').classList.remove('locked');
                 scrollToSection('p2');
-            }, 3000);
+            }, 2500);
         }
 
         // --- PHASE 2: INTERACTION ---
@@ -481,13 +516,11 @@
 
                 if(!hasVoted) {
                     hasVoted = true;
-                    // Unlock Connect Button
-                    const connectBtn = document.getElementById('btnConnect');
-                    connectBtn.disabled = false;
-                    connectBtn.innerHTML = "Conectar con Creadores";
-                    connectBtn.style.background = "var(--text-main)";
-                    
-                    showToast("Tarea Completada", "Ahora puedes conectar con los creadores", "🔓");
+                    const cBtn = document.getElementById('btnConnect');
+                    cBtn.disabled = false;
+                    cBtn.innerHTML = "Conectar con Creadores";
+                    cBtn.style.background = "var(--text-main)";
+                    showToast("Acceso Concedido", "Conecta con los creadores", "🔓");
                 }
             }
         }
@@ -502,11 +535,16 @@
                 btn.style.display = 'none';
                 document.getElementById('chatInputArea').classList.add('active');
                 
-                showToast("Canal Seguro", "Estás conectado en directo", "📡");
+                // REVEAL IMAGE
+                const cover = document.getElementById('badnightCover');
+                cover.classList.add('revealed');
+                document.getElementById('coverLock').style.opacity = 0;
+
+                showToast("Visual Desbloqueado", "Arte oficial revelado", "👁️");
+                addMsg("SYSTEM", "Conexión segura establecida.", "system");
                 
-                addMsg("SYSTEM", "Conexión establecida.", "system");
                 setTimeout(() => {
-                    addMsg("Dani & Luciano", "¡Hola! Vimos que votaste. Gracias por el apoyo. ¿Preguntas?", "creator");
+                    addMsg("Dani & Luciano", "¡Bienvenidos al feed privado! Gracias por votar.", "creator");
                 }, 1000);
             }, 1500);
         }
@@ -525,15 +563,13 @@
         function sendChat() {
             const inp = document.getElementById('chatInput');
             if(!inp.value.trim()) return;
-            
             addMsg("TÚ", inp.value, "user");
             inp.value = "";
             vibrate();
 
-            // Unlock Phase 3
-            if(phase === 1) { // Logic phase check
+            if(phase === 1) { 
                 phase = 2;
-                showToast("Oportunidad", "Ronda de inversión disponible", "💰");
+                showToast("Inversión Disponible", "Ronda final abierta", "💰");
                 setTimeout(() => {
                     document.getElementById('p3').classList.remove('locked');
                     scrollToSection('p3');
@@ -541,26 +577,66 @@
             }
         }
 
-        // --- PHASE 3: FINANCE ---
-        function processInvestment() {
-            const btn = document.getElementById('investBtn');
-            btn.disabled = true;
-            btn.innerHTML = "PROCESANDO BLOCKCHAIN...";
+        // --- PHASE 3: FINANCE (INTERACTIVE) ---
+        let transferTimer;
+        let transferProg = 0;
+        
+        function startTransfer() {
+            if(phase > 2) return;
+            const fill = document.getElementById('transferFill');
+            const btn = document.getElementById('transferBtn');
+            btn.classList.add('active');
+            vibrate();
+
+            transferTimer = setInterval(() => {
+                transferProg += 4; // speed
+                fill.style.width = transferProg + '%';
+                
+                if(transferProg >= 100) {
+                    completeTransfer();
+                }
+            }, 30);
+        }
+
+        function stopTransfer() {
+            if(phase > 2) return;
+            clearInterval(transferTimer);
+            transferProg = 0;
+            document.getElementById('transferFill').style.width = '0%';
+            document.getElementById('transferBtn').classList.remove('active');
+        }
+
+        function completeTransfer() {
+            clearInterval(transferTimer);
+            phase = 3;
+            vibrate();
             
-            // Simulation
+            document.getElementById('transferText').innerText = "TRANSFER COMPLETE";
+            document.getElementById('transferText').style.color = "#000";
+            animateTokens(0);
+            showToast("Fondos Transferidos", "Inversión completada con éxito", "✅");
+
             setTimeout(() => {
-                animateTokens(0);
-                vibrate();
-                showToast("Transferencia Exitosa", "Tu inversión ha sido registrada", "✅");
-                
-                btn.innerHTML = "COMPLETADO";
-                btn.style.background = "var(--accent-green)";
-                
-                setTimeout(() => {
-                    document.getElementById('p4').classList.remove('locked');
-                    scrollToSection('p4');
-                }, 2000);
+                document.getElementById('p4').classList.remove('locked');
+                scrollToSection('p4');
+                // Set Date
+                const now = new Date();
+                document.getElementById('currentDate').innerText = now.toLocaleDateString();
             }, 2000);
+        }
+
+        // --- PHASE 4: EMAIL ---
+        function submitEmail() {
+            const email = document.getElementById('userEmail').value;
+            if(email.includes('@')) {
+                document.getElementById('emailSection').style.display = 'none';
+                document.getElementById('successMsg').style.display = 'block';
+                document.getElementById('greenlightStamp').classList.add('stamped');
+                vibrate();
+                showToast("Greenlight", "Certificado firmado digitalmente", "🎬");
+            } else {
+                alert("Por favor ingresa un email válido.");
+            }
         }
 
         // --- Background Chat Simulation ---
